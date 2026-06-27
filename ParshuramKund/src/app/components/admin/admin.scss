@@ -1,0 +1,174 @@
+.admin-container {
+  background-color: #f4f6f9;
+  min-height: 100vh;
+  padding: 30px 20px;
+}
+
+/* Login Layout */
+.login-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.login-header h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 700;
+  color: #1b1b1b;
+}
+
+/* Dashboard Layout */
+.dashboard-wrapper {
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+/* Stats Cards */
+.stats-card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.stats-icon {
+  font-size: 44px;
+  width: 44px;
+  height: 44px;
+  opacity: 0.25;
+}
+
+.bg-purple {
+  background-color: #6f42c1 !important;
+}
+
+/* Table styling */
+.table-responsive {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table th {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #555;
+  background-color: #f8f9fa;
+  padding: 12px 15px;
+}
+
+.table td {
+  padding: 14px 15px;
+  vertical-align: middle;
+}
+
+.btn-group {
+  display: flex;
+  gap: 4px;
+}
+
+/* Details Panel */
+.details-panel {
+  position: sticky;
+  top: 100px;
+  border: none;
+  border-radius: 12px;
+}
+
+.detail-block {
+  border-bottom: 1px solid #f1f3f5;
+  padding-bottom: 14px;
+  
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.uppercase {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.font-size-sm {
+  font-size: 13px;
+}
+
+.font-size-xs {
+  font-size: 11px;
+}
+
+.icon-inline {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin-right: 6px;
+  color: #777;
+}
+
+.border-dashed {
+  border: 2px dashed #dee2e6 !important;
+  border-radius: 12px;
+  background: transparent;
+}
+
+/* Helpers */
+.serif-font {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Modal Overlay Styling */
+.disposal-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 20px;
+}
+
+.disposal-modal-card {
+  width: 100%;
+  max-width: 580px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.animate-fade-in {
+  animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

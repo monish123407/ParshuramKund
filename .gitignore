@@ -1,0 +1,27 @@
+# === Node / Angular ===
+**/node_modules/
+**/.angular/
+**/dist/
+
+# === Java / Maven ===
+**/target/
+**/*.jar
+**/*.class
+
+# === Sensitive uploaded files ===
+**/aadhar-photos/*
+!**/aadhar-photos/.gitkeep
+
+# === OS files ===
+**/.DS_Store
+**/Thumbs.db
+
+# === IDE ===
+**/.idea/
+**/.vscode/
+**/*.swp
+**/*.swo
+
+# === Environment / secrets ===
+**/.env
+untitled folder/

@@ -1,0 +1,585 @@
+.container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 40px 20px;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+// Govt Title / Main Page Header
+h2.text-center {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a2a40;
+  margin-bottom: 30px;
+  letter-spacing: 0.5px;
+  position: relative;
+  text-align: center;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #b8860b 0%, #e5c158 100%);
+    border-radius: 2px;
+    margin: 12px auto 0 auto;
+  }
+}
+
+// Main Wrapper Card
+mat-card.p-4.shadow {
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 15px 45px rgba(140, 118, 71, 0.06) !important;
+  border: 1px solid rgba(140, 118, 71, 0.1);
+  padding: 40px !important;
+}
+
+// Inner Search Panel Card
+.container.mt-4 mat-card {
+  background: #faf9f6;
+  border: 1px solid #e9e5d9;
+  border-radius: 20px;
+  padding: 30px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.01) !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover {
+    box-shadow: 0 8px 25px rgba(184, 134, 11, 0.05) !important;
+  }
+
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #8c7647;
+    margin-bottom: 24px;
+    border-bottom: 1px dashed #dcd7ca;
+    padding-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &::before {
+      content: '🔍';
+      font-size: 18px;
+    }
+  }
+}
+
+// Premium input field controls
+mat-form-field {
+  width: 100%;
+  
+  ::ng-deep .mdc-text-field--outlined {
+    border-radius: 8px !important;
+  }
+}
+
+// Custom Premium Buttons styling
+button[mat-raised-button] {
+  height: 48px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 8px;
+  letter-spacing: 0.3px;
+  transition: all 0.3s ease;
+
+  &[color="primary"] {
+    background: linear-gradient(135deg, #b8860b 0%, #8c7647 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(140, 118, 71, 0.2);
+
+    &:hover:not([disabled]) {
+      box-shadow: 0 6px 18px rgba(140, 118, 71, 0.3);
+      transform: translateY(-1px);
+    }
+  }
+
+  &[color="accent"] {
+    background-color: #1a2a40;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(26, 42, 64, 0.15);
+
+    &:hover:not([disabled]) {
+      background-color: #243b59;
+      box-shadow: 0 6px 18px rgba(26, 42, 64, 0.25);
+      transform: translateY(-1px);
+    }
+  }
+
+  &[color="warn"] {
+    background-color: #e53e3e;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(229, 62, 62, 0.15);
+
+    &:hover:not([disabled]) {
+      background-color: #c53030;
+      box-shadow: 0 6px 18px rgba(229, 62, 62, 0.25);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// OTP Verified Text
+.text-success {
+  color: #2f855a !important;
+  font-size: 15px;
+  background: rgba(47, 133, 90, 0.08);
+  border: 1px solid rgba(47, 133, 90, 0.2);
+  border-radius: 8px;
+  height: 48px;
+  padding: 0 15px;
+}
+
+// Custom Grid Table Layout
+mat-card.mt-4.p-3.shadow {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e9e5d9;
+  padding: 24px !important;
+  box-shadow: 0 10px 25px rgba(140, 118, 71, 0.04) !important;
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+
+    tr.mat-header-row {
+      height: 52px;
+      background-color: #faf9f6;
+    }
+
+    th.mat-header-cell {
+      color: #5d6778;
+      font-weight: 600;
+      font-size: 14px;
+      border-bottom: 2px solid #e9e5d9;
+      padding: 12px;
+
+      &:first-child {
+        border-top-left-radius: 8px;
+        border-bottom-left-radius: 8px;
+      }
+      &:last-child {
+        border-top-right-radius: 8px;
+        border-bottom-right-radius: 8px;
+      }
+    }
+
+    tr.mat-row {
+      height: 60px;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: #fcfbfa;
+      }
+    }
+
+    td.mat-cell {
+      font-size: 14.5px;
+      color: #2d3748;
+      border-bottom: 1px solid #f0ecdf;
+      padding: 12px;
+    }
+  }
+}
+
+// Pagination Controls styling
+.pagination {
+  margin-top: 24px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+
+  span {
+    font-size: 14.5px;
+    font-weight: 500;
+    color: #4a5568;
+  }
+
+  button {
+    background-color: #ffffff;
+    color: #4a5568;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    height: 38px;
+    padding: 0 16px;
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not([disabled]) {
+      background-color: #f7fafc;
+      border-color: #a0aec0;
+      color: #1a2a40;
+    }
+
+    &[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background-color: #edf2f7;
+    }
+  }
+}
+
+// PDF View Section Card styling
+div.mt-5 mat-card {
+  border-radius: 20px;
+  border: 1px solid #e9e5d9;
+  padding: 30px !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.03) !important;
+
+  .d-flex.justify-content-between {
+    gap: 16px;
+    margin-bottom: 24px !important;
+  }
+}
+
+// QR Code and iframe styling
+img {
+  border: 3px solid #f0ecdf;
+  border-radius: 12px;
+  padding: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+iframe {
+  border: 1px solid #e9e5d9;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+}
+
+// Custom Spinner Aligning
+mat-spinner {
+  margin: 30px auto;
+}
+
+// Keyframe Animations
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsiveness adjustments
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 10px;
+  }
+
+  mat-card.p-4.shadow {
+    padding: 20px !important;
+    border-radius: 16px;
+  }
+
+  .container.mt-4 mat-card {
+    padding: 20px !important;
+  }
+
+  h2.text-center {
+    font-size: 22px;
+  }
+
+  .row > div {
+    margin-bottom: 12px;
+  }
+}
+
+.otp-verification-section {
+  background: #fdfaf2;
+  border: 1px solid #f3e9cc !important;
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 15px;
+  box-shadow: inset 0 2px 4px rgba(184, 134, 11, 0.02);
+
+  h4 {
+    font-size: 17px;
+    font-weight: 600;
+    color: #8c7647;
+    margin-top: 0;
+  }
+
+  p {
+    font-size: 14px;
+    color: #5a5547;
+    line-height: 1.5;
+  }
+}
+
+/* Premium HTML e-Pass Card Styling */
+.epass-card {
+  background: #ffffff;
+  border: 2px solid #8c7647;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(140, 118, 71, 0.08);
+  font-family: 'Outfit', 'Inter', sans-serif;
+  margin-bottom: 24px;
+  animation: fadeInUp 0.4s ease-out;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 12px 30px rgba(140, 118, 71, 0.12);
+  }
+}
+
+.epass-header {
+  background: linear-gradient(135deg, #1a2a40 0%, #2a3e5c 100%);
+  color: #ffffff;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 4px solid #b8860b;
+}
+
+.epass-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  .epass-logo-img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+  }
+
+  p {
+    margin: 2px 0 0 0;
+    font-size: 10px;
+    opacity: 0.85;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+}
+
+.epass-badge {
+  background-color: #22c55e;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+}
+
+.epass-body {
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1fr 180px;
+  gap: 24px;
+  border-bottom: 2px dashed #e2e8f0;
+  position: relative;
+}
+
+.epass-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.epass-row {
+  display: flex;
+  gap: 20px;
+}
+
+.epass-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.epass-col-full {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.epass-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #8c7647;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.epass-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a2a40;
+
+  &.highlight {
+    color: #b8860b;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  &.date-highlight {
+    color: #b8860b;
+    background-color: #fdfaf2;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid #f3e9cc;
+    display: inline-block;
+    width: fit-content;
+  }
+}
+
+.epass-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-left: 2px dashed #cbd5e0;
+  padding-left: 24px;
+
+  .epass-qr-img {
+    width: 130px;
+    height: 130px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 6px;
+    background: #ffffff;
+  }
+
+  .epass-qr-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #718096;
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.epass-cotravelers {
+  padding: 20px 24px;
+  background-color: #faf9f6;
+  border-bottom: 1px solid #e2e8f0;
+
+  h4 {
+    margin: 0 0 12px 0;
+    font-size: 11px;
+    font-weight: 700;
+    color: #8c7647;
+    letter-spacing: 0.5px;
+  }
+}
+
+.cotraveler-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.cotraveler-item {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.cotraveler-num {
+  background-color: #1a2a40;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cotraveler-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.cotraveler-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.cotraveler-meta {
+  font-size: 11px;
+  color: #718096;
+  margin-top: 2px;
+}
+
+.cotraveler-comorb {
+  font-size: 10px;
+  color: #e53e3e;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.epass-footer {
+  background: #faf9f6;
+  padding: 12px 24px;
+  font-size: 10px;
+  color: #718096;
+  text-align: center;
+}
+
+.pdf-viewer-toggle-container {
+  button[mat-raised-button] {
+    font-weight: 600;
+    background-color: rgba(140, 118, 71, 0.08);
+    color: #8c7647;
+    border: 1px dashed rgba(140, 118, 71, 0.3);
+    box-shadow: none;
+
+    &:hover {
+      background-color: rgba(140, 118, 71, 0.15);
+    }
+  }
+}
+
+/* Mobile responsive fixes */
+@media (max-width: 768px) {
+  .epass-body {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .epass-qr {
+    border-left: none;
+    border-top: 2px dashed #cbd5e0;
+    padding-left: 0;
+    padding-top: 20px;
+  }
+  
+  .epass-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

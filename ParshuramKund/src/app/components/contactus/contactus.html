@@ -1,0 +1,151 @@
+<div class="image-container">
+  <img
+    src="../../../assets/Parshuramcommon.png"
+    alt="Parshuram Kund"
+    class="banner-image"
+  >
+  <div class="center-text">
+    <h1>Contact Us</h1>
+    <p>Spiritual Destination of Arunachal Pradesh</p>
+  </div>
+</div>
+
+<div class="contact-content-wrapper py-5">
+  <div class="container">
+    <div class="row g-4">
+      
+      <!-- Left Column: Directory -->
+      <div class="col-lg-7">
+        <h2 class="serif-font text-primary mb-4">Official Contact Directory</h2>
+        
+        <div class="row g-3">
+          <!-- Control Room -->
+          <div class="col-12">
+            <mat-card class="directory-card highlight-card shadow-sm border-0">
+              <mat-card-content class="d-flex align-items-start p-4">
+                <div class="icon-wrapper bg-danger text-white rounded-circle p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                  <mat-icon class="icon-lg">contact_phone</mat-icon>
+                </div>
+                <div>
+                  <h3 class="serif-font text-danger mb-1 fw-bold" style="font-size: 1.35rem;">Mela Control Room (Helpline)</h3>
+                  <p class="text-muted mb-2 font-size-sm">For immediate assistance, safety issues, and pilgrim queries during festival hours.</p>
+                  <p class="mb-1"><strong>Phone:</strong> <a href="tel:+919233495795" class="text-decoration-none text-dark fw-bold">+91 9233495795</a></p>
+                  <p class="mb-0"><strong>Email:</strong> <a href="mailto:parshuramkundfestival2027@gmail.com" class="text-decoration-none text-dark">parshuramkundfestival2027&#64;gmail.com</a></p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- DC Office -->
+          <div class="col-12">
+            <mat-card class="directory-card shadow-sm border-0">
+              <mat-card-content class="d-flex align-items-start p-4">
+                <div class="icon-wrapper bg-primary text-white rounded-circle p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                  <mat-icon class="icon-lg">corporate_fare</mat-icon>
+                </div>
+                <div>
+                  <h3 class="serif-font text-primary mb-1" style="font-size: 1.35rem;">District Administration (Lohit, Tezu)</h3>
+                  <p class="text-muted mb-2 font-size-sm">DC Office, Tezu, Lohit District, Arunachal Pradesh - 792001</p>
+                  <p class="mb-1"><strong>Phone:</strong> <a href="tel:03804-224485" class="text-decoration-none text-dark">03804-224485</a></p>
+                  <p class="mb-1"><strong>Fax:</strong> 03804-222540</p>
+                  <p class="mb-0"><strong>Email:</strong> <a href="mailto:dc-lohit-arn@nic.in" class="text-decoration-none text-dark">dc-lohit-arn&#64;nic.in</a></p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- DIPRO -->
+          <div class="col-md-6">
+            <mat-card class="directory-card h-100 shadow-sm border-0">
+              <mat-card-content class="p-4">
+                <mat-icon color="primary" class="mb-2">campaign</mat-icon>
+                <h4 class="fw-bold mb-1">Information & PR (DIPRO)</h4>
+                <p class="text-muted font-size-sm mb-2">Media inquiries & announcements.</p>
+                <p class="mb-0 font-size-sm"><strong>Phone:</strong> <a href="tel:7085686088" class="text-decoration-none text-dark">7085686088</a></p>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- PWD -->
+          <div class="col-md-6">
+            <mat-card class="directory-card h-100 shadow-sm border-0">
+              <mat-card-content class="p-4">
+                <mat-icon color="primary" class="mb-2">engineering</mat-icon>
+                <h4 class="fw-bold mb-1">Public Works Department</h4>
+                <p class="text-muted font-size-sm mb-2">Road safety & infrastructure details.</p>
+                <p class="mb-0 font-size-sm"><strong>Phone:</strong> <a href="tel:03804-222215" class="text-decoration-none text-dark">03804-222215</a></p>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Feedback Form & Location -->
+      <div class="col-lg-5">
+        <h2 class="serif-font text-primary mb-4">Send an Inquiry</h2>
+        
+        <mat-card class="p-4 shadow-sm border-0 mb-4 bg-white">
+          <mat-card-content>
+            <form (ngSubmit)="submitFeedback()">
+              <mat-form-field appearance="outline" class="w-100 mb-2">
+                <mat-label>Full Name</mat-label>
+                <input matInput name="name" [(ngModel)]="feedback.name" required placeholder="Enter your name">
+                <mat-icon matSuffix>person</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-100 mb-2">
+                <mat-label>Email Address</mat-label>
+                <input matInput type="email" name="email" [(ngModel)]="feedback.email" required placeholder="Enter your email">
+                <mat-icon matSuffix>email</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-100 mb-2">
+                <mat-label>Phone Number (Optional)</mat-label>
+                <input matInput name="phone" [(ngModel)]="feedback.phone" placeholder="Enter phone number">
+                <mat-icon matSuffix>phone</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-100 mb-2">
+                <mat-label>Subject</mat-label>
+                <input matInput name="subject" [(ngModel)]="feedback.subject" placeholder="What is this regarding?">
+                <mat-icon matSuffix>title</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-100 mb-3">
+                <mat-label>Your Message</mat-label>
+                <textarea matInput rows="4" name="message" [(ngModel)]="feedback.message" required placeholder="Write your message here..."></textarea>
+                <mat-icon matSuffix>chat</mat-icon>
+              </mat-form-field>
+
+              <button mat-raised-button color="primary" type="submit" class="w-100 py-2" [disabled]="isSubmitting" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                <mat-icon *ngIf="!isSubmitting">send</mat-icon>
+                <mat-spinner *ngIf="isSubmitting" diameter="20" color="accent" style="display: inline-block;"></mat-spinner>
+                <span>{{ isSubmitting ? 'Submitting...' : 'Submit Inquiry' }}</span>
+              </button>
+            </form>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Location/Map Card -->
+        <mat-card class="map-card shadow-sm border-0 overflow-hidden">
+          <div class="map-header bg-light p-3 d-flex align-items-center border-bottom">
+            <mat-icon color="primary" class="me-2">location_on</mat-icon>
+            <span class="fw-bold text-dark">Location & Geographic Details</span>
+          </div>
+          <mat-card-content class="p-3">
+            <p class="mb-2 font-size-sm"><strong>Coordinates:</strong> 27.8540° N, 96.3533° E</p>
+            <p class="mb-2 font-size-sm"><strong>Address:</strong> Lohit District, Arunachal Pradesh, India</p>
+            <div class="map-placeholder d-flex align-items-center justify-content-center bg-light rounded text-muted" style="height: 150px; border: 1px dashed #cbd5e1;">
+              <div class="text-center">
+                <mat-icon style="font-size: 36px; width: 36px; height: 36px;" class="mb-1 text-primary">pin_drop</mat-icon>
+                <p class="mb-0 font-size-xs fw-bold">Lohit River Plateau, Tezu</p>
+                <span class="text-muted font-size-xxs">Arunachal Pradesh, India</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+    </div>
+  </div>
+</div>

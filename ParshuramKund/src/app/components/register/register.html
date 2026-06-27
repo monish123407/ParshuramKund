@@ -1,0 +1,450 @@
+<div class="registration-container">
+  <!-- Submitting Loading Overlay -->
+  <div *ngIf="isSubmitting" class="submitting-overlay animate-fade-in">
+    <div class="overlay-card text-center p-5 shadow-lg">
+      <mat-spinner diameter="60" class="mx-auto mb-4" color="accent"></mat-spinner>
+      <h3 class="serif-font text-dark mb-2">Confirming Registration...</h3>
+      <p class="text-muted mb-0">Please wait while we finalize your pass details and prepare your PDF pass attachment.</p>
+    </div>
+  </div>
+
+  <!-- Government/Emblem Header Section -->
+  <div class="govt-header">
+    <img src="../../../assets/ArunachalPradesh.png" alt="Arunachal Govt Logo" class="govt-logo" />
+    <div class="govt-titles">
+      <h5>OFFICE OF THE DEPUTY COMMISSIONER</h5>
+      <h4>LOHIT DISTRICT :: TEZU</h4>
+      <p class="govt-subtitle">Parshuram Kund Mela 2027 Pilgrim Registration Portal</p>
+    </div>
+  </div>
+
+  <mat-card class="registration-card">
+    <!-- Main Card Title -->
+    <div class="card-main-header">
+      <h3>Apply for Holy Dip Pass</h3>
+      <div class="gold-divider"></div>
+    </div>
+
+    <!-- Stepper Progress Bar -->
+    <div class="stepper-progress-bar">
+      <div class="step-progress-line" [style.width.%]="(currentStep - 1) * 25"></div>
+      
+      <div class="step-node" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1" (click)="goToStep(1)">
+        <div class="node-icon"><mat-icon>person</mat-icon></div>
+        <span class="node-label">Personal Info</span>
+      </div>
+      
+      <div class="step-node" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2" (click)="goToStep(2)">
+        <div class="node-icon"><mat-icon>contact_mail</mat-icon></div>
+        <span class="node-label">Contact</span>
+      </div>
+      
+      <div class="step-node" [class.active]="currentStep >= 3" [class.completed]="currentStep > 3" (click)="goToStep(3)">
+        <div class="node-icon"><mat-icon>location_on</mat-icon></div>
+        <span class="node-label">Addresses</span>
+      </div>
+      
+      <div class="step-node" [class.active]="currentStep >= 4" [class.completed]="currentStep > 4" (click)="goToStep(4)">
+        <div class="node-icon"><mat-icon>people</mat-icon></div>
+        <span class="node-label">Co-travellers</span>
+      </div>
+      
+      <div class="step-node" [class.active]="currentStep >= 5" [class.completed]="currentStep > 5" (click)="goToStep(5)">
+        <div class="node-icon"><mat-icon>rate_review</mat-icon></div>
+        <span class="node-label">Review & Submit</span>
+      </div>
+    </div>
+
+    <!-- Step 1: Personal Details -->
+    <div *ngIf="currentStep === 1" class="step-content-container">
+      <div class="form-section-card">
+        <h4 class="section-card-title"><mat-icon>person</mat-icon> Personal Information</h4>
+        <div class="row">
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="premium-field">
+              <mat-label>Full Name of the Applicant</mat-label>
+              <input matInput [(ngModel)]="applicant.fullName" required placeholder="Enter your full name">
+            </mat-form-field>
+          </div>
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="premium-field">
+              <mat-label>Select Date of Holy Dip</mat-label>
+              <mat-select [(ngModel)]="applicant.holyDipDate">
+                <mat-option value="12 Jan">12 JAN MON</mat-option>
+                <mat-option value="13 Jan">13 JAN TUE</mat-option>
+                <mat-option value="14 Jan">14 JAN WED</mat-option>
+                <mat-option value="15 Jan">15 JAN THU</mat-option>
+                <mat-option value="16 Jan">16 JAN FRI</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="premium-field">
+              <mat-label>Age of Applicant</mat-label>
+              <input matInput type="number" [(ngModel)]="applicant.age" placeholder="Enter age" min="1">
+            </mat-form-field>
+          </div>
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="premium-field">
+              <mat-label>Co-morbidities</mat-label>
+              <mat-select [(ngModel)]="applicant.comorbidities" multiple (ngModelChange)="onComorbiditiesChange($event)">
+                <mat-option value="None">None</mat-option>
+                <mat-option value="Diabetes">Diabetes</mat-option>
+                <mat-option value="Heart Disease">Heart Disease</mat-option>
+                <mat-option value="Asthma">Asthma</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="row mt-2">
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="premium-field">
+              <mat-label>Aadhaar Number (12 digits)</mat-label>
+              <input matInput [(ngModel)]="applicant.aadharNumber" placeholder="Enter 12-digit Aadhaar number" pattern="[0-9]{12}" maxlength="12" required>
+              <mat-hint>Should be exactly 12 numeric digits</mat-hint>
+            </mat-form-field>
+          </div>
+          <div class="col-md-6">
+            <div class="file-upload-wrapper">
+              <label class="file-upload-label">Upload Aadhaar Card (Photo/PDF, max 200KB)*</label>
+              <div class="file-upload-controls">
+                <input type="file" id="aadharPhoto" (change)="onAadharFileSelected($event)" accept="image/*,application/pdf" class="file-input-hidden" required>
+                <label for="aadharPhoto" class="file-upload-btn">
+                  <mat-icon>cloud_upload</mat-icon>
+                  <span>{{ selectedAadharFile ? selectedAadharFile.name : 'Choose file' }}</span>
+                </label>
+              </div>
+              <div *ngIf="aadharFileError" class="file-upload-error">{{ aadharFileError }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stepper-actions-footer">
+        <button mat-raised-button class="stepper-next-btn" [disabled]="!isStep1Valid()" (click)="nextStep()">
+          Next: Contact Details <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Contact Details -->
+    <div *ngIf="currentStep === 2" class="step-content-container">
+      <div class="form-section-card">
+        <h4 class="section-card-title"><mat-icon>contact_mail</mat-icon> Contact & Communication</h4>
+        <div class="row">
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="premium-field">
+              <mat-label>Email (Optional)</mat-label>
+              <input matInput type="email" [(ngModel)]="applicant.email" placeholder="example@domain.com">
+            </mat-form-field>
+          </div>
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="premium-field">
+              <mat-label>Mobile Number</mat-label>
+              <input matInput [(ngModel)]="applicant.phone" placeholder="10-digit mobile number">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="gender-section-wrapper">
+              <span class="gender-label">Gender:</span>
+              <mat-radio-group [(ngModel)]="applicant.gender" class="premium-radio-group">
+                <mat-radio-button value="Male">Male</mat-radio-button>
+                <mat-radio-button value="Female">Female</mat-radio-button>
+                <mat-radio-button value="Other">Other</mat-radio-button>
+              </mat-radio-group>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stepper-actions-footer split-buttons">
+        <button mat-stroked-button class="stepper-back-btn" (click)="prevStep()">
+          <mat-icon>arrow_back</mat-icon> Back
+        </button>
+        <button mat-raised-button class="stepper-next-btn" [disabled]="!isStep2Valid()" (click)="nextStep()">
+          Next: Address Details <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: Address Details -->
+    <div *ngIf="currentStep === 3" class="step-content-container">
+      <div class="form-section-card address-section-card">
+        <div class="row">
+          <!-- Present Address Column -->
+          <div class="col-md-6 address-column">
+            <h4 class="section-card-title"><mat-icon>location_on</mat-icon> Present Address</h4>
+            
+            <mat-form-field appearance="outline" class="premium-field">
+              <mat-label>Street Address</mat-label>
+              <textarea matInput rows="3" [(ngModel)]="applicant.presentAddress" placeholder="House no, Street name, Locality..."></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="premium-field">
+              <mat-label>State</mat-label>
+              <input type="text" placeholder="Select State" matInput [(ngModel)]="applicant.presentState" (input)="filterPresentStates()" (focus)="filterPresentStates()" [matAutocomplete]="presentStateAuto" required>
+              <mat-autocomplete #presentStateAuto="matAutocomplete" (optionSelected)="onPresentStateSelected($event.option.value)">
+                <mat-option *ngFor="let state of filteredPresentStates" [value]="state">{{ state }}</mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="premium-field">
+              <mat-label>District</mat-label>
+              <input type="text" placeholder="Select District" matInput [(ngModel)]="applicant.presentDistrict" (input)="filterPresentDistricts()" (focus)="filterPresentDistricts()" [matAutocomplete]="presentDistrictAuto" [disabled]="!applicant.presentState" required>
+              <mat-autocomplete #presentDistrictAuto="matAutocomplete" (optionSelected)="onPresentDistrictSelected($event.option.value)">
+                <mat-option *ngFor="let district of filteredPresentDistricts" [value]="district">{{ district }}</mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="premium-field" *ngIf="applicant.presentDistrict === 'Other'">
+              <mat-label>Specify District Name</mat-label>
+              <input matInput [(ngModel)]="customPresentDistrict" required placeholder="Type district name">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="premium-field">
+              <mat-label>Present Pincode</mat-label>
+              <input matInput [(ngModel)]="applicant.presentPinCode" placeholder="6-digit pincode">
+            </mat-form-field>
+          </div>
+
+          <!-- Permanent Address Column -->
+          <div class="col-md-6 address-column permanent-address-col">
+            <div class="address-header-row">
+              <h4 class="section-card-title"><mat-icon>home</mat-icon> Permanent Address</h4>
+              <mat-checkbox [(ngModel)]="applicant.sameAddress" (change)="copyPresentAddress()" class="same-address-checkbox">
+                Same as Present
+              </mat-checkbox>
+            </div>
+
+            <mat-form-field appearance="outline" class="premium-field">
+              <mat-label>Permanent Address</mat-label>
+              <textarea matInput rows="3" [(ngModel)]="applicant.permanentAddress" placeholder="House no, Street name, Locality..."></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="premium-field">
+              <mat-label>State</mat-label>
+              <input type="text" placeholder="Select State" matInput [(ngModel)]="applicant.permanentState" (input)="filterPermanentStates()" (focus)="filterPermanentStates()" [matAutocomplete]="permanentStateAuto" required>
+              <mat-autocomplete #permanentStateAuto="matAutocomplete" (optionSelected)="onPermanentStateSelected($event.option.value)">
+                <mat-option *ngFor="let state of filteredPermanentStates" [value]="state">{{ state }}</mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="premium-field">
+              <mat-label>District</mat-label>
+              <input type="text" placeholder="Select District" matInput [(ngModel)]="applicant.permanentDistrict" (input)="filterPermanentDistricts()" (focus)="filterPermanentDistricts()" [matAutocomplete]="permanentDistrictAuto" [disabled]="!applicant.permanentState" required>
+              <mat-autocomplete #permanentDistrictAuto="matAutocomplete" (optionSelected)="onPermanentDistrictSelected($event.option.value)">
+                <mat-option *ngFor="let district of filteredPermanentDistricts" [value]="district">{{ district }}</mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="premium-field" *ngIf="applicant.permanentDistrict === 'Other'">
+              <mat-label>Specify District Name</mat-label>
+              <input matInput [(ngModel)]="customPermanentDistrict" required placeholder="Type district name">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="premium-field">
+              <mat-label>Permanent Pincode</mat-label>
+              <input matInput [(ngModel)]="applicant.permanentPinCode" placeholder="6-digit pincode">
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <div class="stepper-actions-footer split-buttons">
+        <button mat-stroked-button class="stepper-back-btn" (click)="prevStep()">
+          <mat-icon>arrow_back</mat-icon> Back
+        </button>
+        <button mat-raised-button class="stepper-next-btn" [disabled]="!isStep3Valid()" (click)="nextStep()">
+          Next: Co-travellers <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 4: Co-travellers -->
+    <div *ngIf="currentStep === 4" class="step-content-container">
+      <div class="form-section-card">
+        <div class="cotraveller-header-row">
+          <h4 class="section-card-title"><mat-icon>people</mat-icon> Co-travellers & Family Members</h4>
+          <div class="radio-group-container">
+            <span class="inline-radio-label">Include Co-travellers?</span>
+            <mat-radio-group [(ngModel)]="applicant.isPresentCoApplicant" class="premium-radio-group">
+              <mat-radio-button value="Yes">Yes</mat-radio-button>
+              <mat-radio-button value="No">No</mat-radio-button>
+            </mat-radio-group>
+          </div>
+        </div>
+
+        <div *ngIf="applicant.isPresentCoApplicant === 'Yes'" class="cotravellers-container">
+          <button mat-stroked-button color="primary" class="add-traveller-btn" (click)="addTraveller()">
+            <mat-icon>person_add</mat-icon> Add Co-traveller
+          </button>
+
+          <div class="traveller-card-item" *ngFor="let traveller of coTravellers; let i = index">
+            <div class="traveller-card-header">
+              <h5>Co-traveller {{ i + 1 }}</h5>
+              <button mat-icon-button color="warn" class="delete-traveller-btn" (click)="deleteTraveller(i)" title="Remove Co-traveller">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </div>
+
+            <div class="row">
+              <div class="col-md-3">
+                <mat-form-field appearance="outline" class="premium-field">
+                  <mat-label>Full Name</mat-label>
+                  <input matInput [(ngModel)]="traveller.name" placeholder="Enter name">
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline" class="premium-field">
+                  <mat-label>Age</mat-label>
+                  <input matInput type="number" [(ngModel)]="traveller.age" placeholder="Enter age" min="1">
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline" class="premium-field">
+                  <mat-label>Gender</mat-label>
+                  <mat-select [(ngModel)]="traveller.gender">
+                    <mat-option value="Male">Male</mat-option>
+                    <mat-option value="Female">Female</mat-option>
+                    <mat-option value="Other">Other</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline" class="premium-field">
+                  <mat-label>Co-morbidities</mat-label>
+                  <mat-select [(ngModel)]="traveller.comorbidities" multiple (ngModelChange)="onCoTravellerComorbiditiesChange(traveller, $event)">
+                    <mat-option value="None">None</mat-option>
+                    <mat-option value="Diabetes">Diabetes</mat-option>
+                    <mat-option value="Heart Disease">Heart Disease</mat-option>
+                    <mat-option value="Asthma">Asthma</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stepper-actions-footer split-buttons">
+        <button mat-stroked-button class="stepper-back-btn" (click)="prevStep()">
+          <mat-icon>arrow_back</mat-icon> Back
+        </button>
+        <button mat-raised-button class="stepper-next-btn" [disabled]="!isStep4Valid()" (click)="nextStep()">
+          Next: Review & Submit <mat-icon>rate_review</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 5: Review & Submit -->
+    <div *ngIf="currentStep === 5" class="step-content-container">
+      <div class="preview-section">
+        <h3 class="preview-title">Review Your Registration Details</h3>
+        <p class="preview-subtitle">Please double-check all details below. Tick the declaration statement and click "Confirm & Submit" to complete your registration.</p>
+
+        <div class="preview-grid">
+          <!-- Section: Personal Info -->
+          <div class="preview-card-item">
+            <h4><mat-icon>person</mat-icon> Personal Information</h4>
+            <table class="preview-table">
+              <tr><td><strong>Full Name:</strong></td><td>{{ applicant.fullName }}</td></tr>
+              <tr><td><strong>Age:</strong></td><td>{{ applicant.age }} years</td></tr>
+              <tr><td><strong>Gender:</strong></td><td>{{ applicant.gender }}</td></tr>
+              <tr><td><strong>Mobile:</strong></td><td>{{ applicant.phone }}</td></tr>
+              <tr><td><strong>Email:</strong></td><td>{{ applicant.email || 'N/A' }}</td></tr>
+              <tr><td><strong>Holy Dip Date:</strong></td><td>{{ applicant.holyDipDate }}</td></tr>
+              <tr><td><strong>Co-morbidities:</strong></td><td>{{ applicant.comorbidities.length > 0 ? applicant.comorbidities.join(', ') : 'None' }}</td></tr>
+              <tr><td><strong>Aadhaar Number:</strong></td><td>XXXX-XXXX-{{ applicant.aadharNumber | slice:8:12 }} (Masked)</td></tr>
+            </table>
+          </div>
+
+          <!-- Section: Present Address -->
+          <div class="preview-card-item">
+            <h4><mat-icon>location_on</mat-icon> Present Address</h4>
+            <table class="preview-table">
+              <tr><td><strong>Street Address:</strong></td><td>{{ applicant.presentAddress }}</td></tr>
+              <tr><td><strong>State:</strong></td><td>{{ applicant.presentState }}</td></tr>
+              <tr><td><strong>District:</strong></td><td>{{ applicant.presentDistrict === 'Other' ? customPresentDistrict : applicant.presentDistrict }}</td></tr>
+              <tr><td><strong>Pincode:</strong></td><td>{{ applicant.presentPinCode }}</td></tr>
+            </table>
+          </div>
+
+          <!-- Section: Permanent Address -->
+          <div class="preview-card-item">
+            <h4><mat-icon>home</mat-icon> Permanent Address</h4>
+            <table class="preview-table">
+              <tr><td><strong>Street Address:</strong></td><td>{{ applicant.permanentAddress }}</td></tr>
+              <tr><td><strong>State:</strong></td><td>{{ applicant.permanentState }}</td></tr>
+              <tr><td><strong>District:</strong></td><td>{{ applicant.permanentDistrict === 'Other' ? customPermanentDistrict : applicant.permanentDistrict }}</td></tr>
+              <tr><td><strong>Pincode:</strong></td><td>{{ applicant.permanentPinCode }}</td></tr>
+            </table>
+          </div>
+
+          <!-- Section: Co-travellers -->
+          <div class="preview-card-item" *ngIf="applicant.isPresentCoApplicant === 'Yes' && coTravellers.length > 0">
+            <h4><mat-icon>people</mat-icon> Co-travellers ({{ coTravellers.length }})</h4>
+            <table class="preview-table co-travellers-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Age</th>
+                  <th>Gender</th>
+                  <th>Co-morbidities</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let traveller of coTravellers; let idx = index">
+                  <td>{{ idx + 1 }}</td>
+                  <td>{{ traveller.name }}</td>
+                  <td>{{ traveller.age }}</td>
+                  <td>{{ traveller.gender }}</td>
+                  <td>{{ traveller.comorbidities && traveller.comorbidities.length > 0 ? traveller.comorbidities.join(', ') : 'None' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 5: Declaration -->
+        <div class="declaration-premium-card">
+          <div class="declaration-header">
+            <mat-icon>assignment_turned_in</mat-icon>
+            <h4>Official Pilgrim Declaration</h4>
+          </div>
+          <p class="declaration-text">
+            I do hereby declare that the above particulars are true and correct to the best of my knowledge and belief and in case of any false statement / information I shall be liable for any action under appropriate section of law.
+          </p>
+          <mat-checkbox [(ngModel)]="applicant.declaration" class="declaration-checkbox">
+            I agree to the declaration statement above.
+          </mat-checkbox>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="preview-actions">
+          <button mat-button class="preview-back-btn" (click)="goToStep(4)">
+            <mat-icon>edit</mat-icon> Back to Edit
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            class="preview-submit-btn"
+            [disabled]="isFormInvalid || isSubmitting"
+            (click)="submitForm()">
+            <mat-icon *ngIf="!isSubmitting">check_circle</mat-icon>
+            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <span>Confirm & Submit</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </mat-card>
+</div>

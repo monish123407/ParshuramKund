@@ -1,0 +1,153 @@
+<!-- home.component.html -->
+<div class="slider-wrapper">
+  <!-- Slider Container -->
+  <div class="slider">
+    <div class="slides" [style.transform]="'translateX(-' + currentIndex * 100 + '%)'">
+      <!-- Slide Loop -->
+      <div class="slide" *ngFor="let s of slides; let i = index">
+        <img [src]="s.image" [alt]="s.title" class="slide-img" />
+        <div class="overlay">
+          <div class="transparent-card">
+            <h4>{{ s.tagline }}</h4>
+            <h1>{{ s.title }}</h1>
+            <h3 *ngIf="s.subtitle">{{ s.subtitle }}</h3>
+            <p>{{ s.description }}</p>
+            <a href="/registration">
+              <button mat-raised-button color="primary" class="register-cta-btn">
+                Register Now
+              </button>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Arrows -->
+    <button class="nav-arrow prev-arrow" (click)="prevSlide()" aria-label="Previous Slide">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <button class="nav-arrow next-arrow" (click)="nextSlide()" aria-label="Next Slide">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+
+    <!-- Indicators -->
+    <div class="slider-indicators">
+      <span *ngFor="let s of slides; let idx = index" 
+            class="indicator-dot" 
+            [class.active]="currentIndex === idx"
+            (click)="setSlide(idx)">
+      </span>
+    </div>
+  </div>
+</div>
+
+<br />
+<br />
+
+<div class="video-section-container">
+  <mat-card class="video-card">
+    <mat-card-content>
+      <video controls poster="../../../assets/videothumbnailParshuramKund.png" class="video-player">
+        <source src="../../../assets/ParshuramKundVideo.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- Official Government Portal Content Section -->
+<div class="official-content-section py-5">
+  <div class="container text-center mb-5">
+    <h2 class="serif-font section-title text-primary">About Parshuram Kund</h2>
+    <div class="gold-divider mx-auto mb-4"></div>
+    <p class="lead-text max-width-800 mx-auto">
+      Parshuram Kund is a revered Hindu pilgrimage site located in the lower reaches of the Lohit River, on the Brahmaputra plateau in the Lohit district of Arunachal Pradesh, India. Famously referred to as the <strong>"Kumbh of the Northeast"</strong>, this holy sanctuary draws lakhs of devotees and tourists from across the globe every January.
+    </p>
+  </div>
+
+  <div class="container">
+    <div class="row g-4 mb-5">
+      <!-- Card 1: Mythology -->
+      <div class="col-md-6">
+        <mat-card class="info-card h-100 shadow-sm border-0 p-4 bg-white">
+          <div class="card-icon-header d-flex align-items-center mb-3">
+            <mat-icon class="card-header-icon me-2">auto_stories</mat-icon>
+            <h3 class="serif-font mb-0">Mythological Significance</h3>
+          </div>
+          <mat-card-content>
+            <p class="text-muted text-start lh-lg mb-3">
+              The history of Parshuram Kund is deeply rooted in ancient scriptures, finding mentions in the <em>Srimad Bhagavat</em>, <em>Kalika Purana</em>, and the epic <em>Mahabharata</em>.
+            </p>
+            <p class="text-muted text-start lh-lg mb-0">
+              According to legend, the great sage <strong>Lord Parshuram</strong> (the sixth incarnation of Lord Vishnu) committed the grave sin of matricide at his father's behest. To atone for this deed, he took a dip in the holy waters of this Kund. His sin was washed away, and the axe—which was fused to his hand due to the crime—finally fell off.
+            </p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Card 2: Holy Dip -->
+      <div class="col-md-6">
+        <mat-card class="info-card h-100 shadow-sm border-0 p-4 bg-white">
+          <div class="card-icon-header d-flex align-items-center mb-3">
+            <mat-icon class="card-header-icon me-2">waves</mat-icon>
+            <h3 class="serif-font mb-0">Holy Dip & Makar Sankranti</h3>
+          </div>
+          <mat-card-content>
+            <p class="text-muted text-start lh-lg mb-3">
+              Pilgrims gather at the Kund for the sacred bath in the Lohit River, particularly during the auspicious festival of <strong>Makar Sankranti</strong> in mid-January.
+            </p>
+            <p class="text-muted text-start lh-lg mb-0">
+              Devotees believe that a holy dip in the crystal-clear waters during this transition cleanses all earthly sins, bringing peace and leading to spiritual liberation (Moksha). The District Administration of Lohit ensures comfortable lodging, clean drinking water, security, and emergency services for a seamless pilgrimage.
+            </p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Banner Info -->
+    <mat-card class="highlight-banner-card text-white p-4 p-md-5 mb-5 border-0 position-relative overflow-hidden">
+      <div class="banner-overlay"></div>
+      <mat-card-content class="position-relative z-index-1">
+        <div class="row align-items-center">
+          <div class="col-lg-8 text-start">
+            <h3 class="serif-font text-white mb-2">Experience the Spiritual Harmony</h3>
+            <p class="text-white-80 mb-0">
+              The annual Parshuram Kund Mela is a grand confluence of spiritual faith and diverse cultural elements. It serves as a meeting point for tribal communities of Arunachal Pradesh and pilgrims from all corners of India, fostering unity and eco-tourism.
+            </p>
+          </div>
+          <div class="col-lg-4 text-center mt-3 mt-lg-0">
+            <div class="badge-border p-3 rounded">
+              <h4 class="text-warning mb-1 fw-bold">Makar Sankranti Mela</h4>
+              <p class="text-white-50 mb-0 font-size-xs">From 12th - 16th January 2027</p>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Highlights Grid -->
+    <div class="row g-4 text-center">
+      <div class="col-md-4">
+        <div class="amenity-highlight p-4 bg-white border rounded shadow-xs h-100">
+          <mat-icon class="highlight-icon">hotel</mat-icon>
+          <h4 class="fw-bold mt-3 mb-2">Transit Camps</h4>
+          <p class="text-muted font-size-sm mb-0">Free common tent accommodations, guest houses, and dharamshalas prepared for night stays.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="amenity-highlight p-4 bg-white border rounded shadow-xs h-100">
+          <mat-icon class="highlight-icon">local_hospital</mat-icon>
+          <h4 class="fw-bold mt-3 mb-2">Medical Camps</h4>
+          <p class="text-muted font-size-sm mb-0">24/7 medical aid stations, ambulances, and disaster management support along the path.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="amenity-highlight p-4 bg-white border rounded shadow-xs h-100">
+          <mat-icon class="highlight-icon">storefront</mat-icon>
+          <h4 class="fw-bold mt-3 mb-2">Local Crafts</h4>
+          <p class="text-muted font-size-sm mb-0">Exhibitions and craft stalls showcasing traditional tribal weaves, organic honey, and artifacts.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

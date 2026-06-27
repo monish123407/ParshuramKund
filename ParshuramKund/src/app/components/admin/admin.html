@@ -1,0 +1,631 @@
+<div class="admin-container">
+  <!-- Login Screen -->
+  <div *ngIf="!isLoggedIn" class="login-wrapper">
+    <mat-card class="login-card shadow-lg p-4">
+      <div class="login-header text-center mb-4">
+        <img src="assets/Parshuramlogo.png" alt="Logo" class="logo mb-2" width="80">
+        <h3>Admin Portal Login</h3>
+        <p class="text-muted">Parshuram Kund Mela Management</p>
+      </div>
+
+      <form (ngSubmit)="login()">
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Username</mat-label>
+          <input matInput name="username" [(ngModel)]="username" required autocomplete="username">
+          <mat-icon matSuffix>person</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" name="password" [(ngModel)]="password" required autocomplete="current-password">
+          <mat-icon matSuffix>lock</mat-icon>
+        </mat-form-field>
+
+        <!-- CAPTCHA Section -->
+        <div class="d-flex align-items-center justify-content-between mb-3 bg-light p-2 rounded border">
+          <canvas id="captchaCanvas" width="150" height="50" style="background: #f3f4f6; border-radius: 4px;"></canvas>
+          <button mat-icon-button type="button" (click)="generateCaptcha()" matTooltip="Refresh CAPTCHA">
+            <mat-icon>refresh</mat-icon>
+          </button>
+        </div>
+
+        <mat-form-field appearance="outline" class="w-100 mb-4">
+          <mat-label>Enter CAPTCHA Code</mat-label>
+          <input matInput name="userEnteredCaptcha" [(ngModel)]="userEnteredCaptcha" required placeholder="Type the characters above">
+          <mat-icon matSuffix>security</mat-icon>
+        </mat-form-field>
+
+        <button mat-raised-button type="submit" color="primary" class="w-100 py-2">
+          Login
+        </button>
+      </form>
+    </mat-card>
+  </div>
+
+  <!-- Dashboard Screen -->
+  <div *ngIf="isLoggedIn" class="dashboard-wrapper">
+    <!-- Header -->
+    <header class="d-flex justify-content-between align-items-center mb-4 p-3 bg-white shadow-sm rounded">
+      <div class="d-flex align-items-center">
+        <img src="assets/Parshuramlogo.png" alt="Logo" class="me-2" width="50">
+        <div>
+          <h2 class="mb-0 serif-font">Parshuram Kund Portal</h2>
+          <span class="text-muted font-size-sm">District Administration, Lohit</span>
+        </div>
+      </div>
+      <button mat-raised-button color="warn" (click)="logout()">
+        <mat-icon>logout</mat-icon> Logout
+      </button>
+    </header>
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5">
+      <div class="col">
+        <mat-card class="stats-card p-3 bg-primary text-white shadow-sm h-100">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="mb-1">Total Bookings</p>
+              <h3 class="mb-0 fw-bold">{{ stats.total }}</h3>
+            </div>
+            <mat-icon class="stats-icon">people</mat-icon>
+          </div>
+        </mat-card>
+      </div>
+
+      <div class="col">
+        <mat-card class="stats-card p-3 bg-success text-white shadow-sm h-100">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="mb-1">Co-Applicants</p>
+              <h3 class="mb-0 fw-bold">{{ stats.coApplicants }}</h3>
+            </div>
+            <mat-icon class="stats-icon">group_add</mat-icon>
+          </div>
+        </mat-card>
+      </div>
+
+      <div class="col">
+        <mat-card class="stats-card p-3 bg-info text-white shadow-sm h-100">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="mb-1">Male Devotees</p>
+              <h3 class="mb-0 fw-bold">{{ stats.male }}</h3>
+            </div>
+            <mat-icon class="stats-icon">male</mat-icon>
+          </div>
+        </mat-card>
+      </div>
+
+      <div class="col">
+        <mat-card class="stats-card p-3 bg-purple text-white shadow-sm h-100">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="mb-1">Female Devotees</p>
+              <h3 class="mb-0 fw-bold">{{ stats.female }}</h3>
+            </div>
+            <mat-icon class="stats-icon">female</mat-icon>
+          </div>
+        </mat-card>
+      </div>
+
+      <div class="col">
+        <mat-card class="stats-card p-3 bg-danger text-white shadow-sm h-100">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="mb-1">Total Inquiries</p>
+              <h3 class="mb-0 fw-bold">{{ stats.inquiries }}</h3>
+            </div>
+            <mat-icon class="stats-icon">question_answer</mat-icon>
+          </div>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Segmented Tab Switcher -->
+    <div class="d-flex gap-2 mb-4 bg-light p-2 rounded border" style="width: fit-content;">
+      <button mat-raised-button [color]="activeTab === 'registrations' ? 'primary' : ''" (click)="activeTab = 'registrations'; selectedRegistration = null; selectedInquiry = null;">
+        <mat-icon class="me-1">people</mat-icon> Registrations
+      </button>
+      <button mat-raised-button [color]="activeTab === 'inquiries' ? 'primary' : ''" (click)="activeTab = 'inquiries'; selectedRegistration = null; selectedInquiry = null;">
+        <mat-icon class="me-1">question_answer</mat-icon> Pilgrim Inquiries
+      </button>
+      <button *ngIf="currentUser?.role === 'SUPER_ADMIN'" mat-raised-button [color]="activeTab === 'members' ? 'primary' : ''" (click)="activeTab = 'members'; selectedRegistration = null; selectedInquiry = null;">
+        <mat-icon class="me-1">admin_panel_settings</mat-icon> Admin Members
+      </button>
+    </div>
+
+    <!-- Filters and Table container -->
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <!-- Registrations Card -->
+        <mat-card *ngIf="activeTab === 'registrations'" class="p-4 shadow-sm bg-white rounded">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="mb-0 serif-font">Registration Database</h3>
+            <button *ngIf="currentUser?.role !== 'AUDITOR'" mat-raised-button color="accent" (click)="exportToCSV()">
+              <mat-icon>download</mat-icon> Export CSV
+            </button>
+          </div>
+
+          <!-- Controls Grid -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Search Registrations</mat-label>
+                <input matInput [(ngModel)]="searchQuery" placeholder="Search by name, ID, phone, email...">
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="col-md-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Gender Filter</mat-label>
+                <mat-select [(ngModel)]="selectedGender">
+                  <mat-option value="">All Genders</mat-option>
+                  <mat-option value="Male">Male</mat-option>
+                  <mat-option value="Female">Female</mat-option>
+                  <mat-option value="Other">Other</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="col-md-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Visit Date</mat-label>
+                <mat-select [(ngModel)]="selectedVisitDate">
+                  <mat-option value="">All Dates</mat-option>
+                  <mat-option *ngFor="let d of uniqueVisitDates" [value]="d">{{ d }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Spinner -->
+          <div *ngIf="loading" class="text-center py-5">
+            <mat-spinner diameter="50" class="mx-auto"></mat-spinner>
+          </div>
+
+          <!-- Table -->
+          <div *ngIf="!loading" class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Mobile</th>
+                  <th>Visit Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let reg of pagedRegistrations">
+                  <td class="fw-bold text-muted">#{{ reg.id }}</td>
+                  <td>
+                    <div class="fw-bold">{{ reg.fullName }}</div>
+                    <span class="text-muted font-size-xs">{{ reg.email }}</span>
+                  </td>
+                  <td>{{ reg.phone }}</td>
+                  <td>
+                    <span class="badge bg-light text-dark border">{{ reg.holyDipDate }}</span>
+                  </td>
+                  <td>
+                    <div class="btn-group">
+                      <button mat-icon-button color="primary" matTooltip="View Details" (click)="viewDetails(reg)">
+                        <mat-icon>visibility</mat-icon>
+                      </button>
+                      <button *ngIf="currentUser?.role !== 'AUDITOR'" mat-icon-button color="accent" matTooltip="Download Pass" (click)="downloadPass(reg.id)">
+                        <mat-icon>picture_as_pdf</mat-icon>
+                      </button>
+                      <button *ngIf="currentUser?.role !== 'AUDITOR'" mat-icon-button color="primary" matTooltip="Resend Pass Email" (click)="resendEmail(reg.id)">
+                        <mat-icon>mail</mat-icon>
+                      </button>
+                      <button *ngIf="currentUser?.role === 'SUPER_ADMIN'" mat-icon-button color="warn" matTooltip="Cancel Booking" (click)="deleteBooking(reg.id)">
+                        <mat-icon>cancel</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="filteredRegistrations.length === 0">
+                  <td colspan="5" class="text-center py-4 text-muted">No registrations found matching search criteria.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Controls -->
+          <div class="pagination mt-4 d-flex justify-content-center align-items-center gap-2" *ngIf="filteredRegistrations.length > regPageSize">
+            <button mat-stroked-button color="primary" [disabled]="regCurrentPage === 1" (click)="regCurrentPage = regCurrentPage - 1">
+              <mat-icon>chevron_left</mat-icon> Previous
+            </button>
+            <span class="mx-3 fw-bold text-muted" style="font-size: 14.5px;">
+              Page {{ regCurrentPage }} of {{ regTotalPages }}
+            </span>
+            <button mat-stroked-button color="primary" [disabled]="regCurrentPage === regTotalPages" (click)="regCurrentPage = regCurrentPage + 1">
+              Next <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        </mat-card>
+
+        <!-- Inquiries Card -->
+        <mat-card *ngIf="activeTab === 'inquiries'" class="p-4 shadow-sm bg-white rounded">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="mb-0 serif-font">Pilgrim Inquiries Database</h3>
+          </div>
+
+          <!-- Controls Grid for Inquiries -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-12">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Search Inquiries</mat-label>
+                <input matInput [(ngModel)]="searchQuery" placeholder="Search by name, email, subject, message...">
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Spinner -->
+          <div *ngIf="loading" class="text-center py-5">
+            <mat-spinner diameter="50" class="mx-auto"></mat-spinner>
+          </div>
+
+          <!-- Table -->
+          <div *ngIf="!loading" class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Subject</th>
+                  <th>Submitted At</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let inq of filteredInquiries">
+                  <td class="fw-bold text-muted">#{{ inq.id }}</td>
+                  <td>
+                    <div class="fw-bold">{{ inq.name }}</div>
+                    <span class="text-muted font-size-xs">{{ inq.email }}</span>
+                    <div *ngIf="inq.phone" class="text-muted font-size-xs">{{ inq.phone }}</div>
+                  </td>
+                  <td>
+                    <div class="fw-bold text-primary">{{ inq.subject || '(No Subject)' }}</div>
+                  </td>
+                  <td>
+                    <span class="badge bg-light text-dark border">{{ inq.submittedAt }}</span>
+                  </td>
+                  <td>
+                    <div class="btn-group">
+                      <button mat-icon-button color="primary" matTooltip="Read Message" (click)="viewInquiryDetails(inq)">
+                        <mat-icon>chat_bubble</mat-icon>
+                      </button>
+                      <button *ngIf="currentUser?.role !== 'AUDITOR'" mat-icon-button color="warn" matTooltip="Dispose of Inquiry" (click)="disposeInquiry(inq.id)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="filteredInquiries.length === 0">
+                  <td colspan="5" class="text-center py-4 text-muted">No inquiries found matching search criteria.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </mat-card>
+
+        <!-- Admin Members Card -->
+        <mat-card *ngIf="activeTab === 'members'" class="p-4 shadow-sm bg-white rounded">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="mb-0 serif-font">Admin Members</h3>
+          </div>
+
+          <!-- Spinner -->
+          <div *ngIf="loading" class="text-center py-5">
+            <mat-spinner diameter="50" class="mx-auto"></mat-spinner>
+          </div>
+
+          <!-- Table -->
+          <div *ngIf="!loading" class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Username</th>
+                  <th>Full Name</th>
+                  <th>Role</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let member of members">
+                  <td class="fw-bold">{{ member.username }}</td>
+                  <td>{{ member.fullName }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="{
+                      'bg-danger': member.role === 'SUPER_ADMIN',
+                      'bg-primary': member.role === 'MELA_OPERATOR',
+                      'bg-success': member.role === 'AUDITOR'
+                    }">{{ member.role }}</span>
+                  </td>
+                  <td>
+                    <div class="btn-group">
+                      <button mat-icon-button color="primary" matTooltip="Edit Member" (click)="editMember(member)">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" matTooltip="Delete Member" [disabled]="currentUser?.username === member.username" (click)="deleteAdminMember(member.id)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="members.length === 0">
+                  <td colspan="4" class="text-center py-4 text-muted">No admin members found.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </mat-card>
+      </div>
+
+      <!-- Details sidebar -->
+      <div class="col-lg-4">
+        <!-- Registrations Details -->
+        <mat-card *ngIf="activeTab === 'registrations' && selectedRegistration" class="p-4 shadow-sm bg-white rounded details-panel">
+          <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+            <h3 class="mb-0 serif-font">Registration Details</h3>
+            <button mat-icon-button (click)="closeDetails()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+
+          <div class="details-body">
+            <div class="detail-block mb-3">
+              <label class="text-muted font-size-xs uppercase fw-bold">Applicant Info</label>
+              <h4 class="mb-1">{{ selectedRegistration.fullName }}</h4>
+              <p class="mb-0 text-muted font-size-sm">ID: #{{ selectedRegistration.id }} | Age: {{ selectedRegistration.age }} | Gender: {{ selectedRegistration.gender }}</p>
+            </div>
+
+            <div class="detail-block mb-3">
+              <label class="text-muted font-size-xs uppercase fw-bold">Contact Details</label>
+              <p class="mb-0"><mat-icon class="icon-inline">phone</mat-icon> {{ selectedRegistration.phone }}</p>
+              <p class="mb-0"><mat-icon class="icon-inline">email</mat-icon> {{ selectedRegistration.email }}</p>
+            </div>
+
+            <div class="detail-block mb-3" *ngIf="selectedRegistration.aadharNumber">
+              <label class="text-muted font-size-xs uppercase fw-bold">Aadhaar Card (UIDAI Compliant)</label>
+              <p class="mb-1"><strong>Aadhaar No:</strong> {{ selectedRegistration.aadharNumber }}</p>
+              <div *ngIf="selectedRegistration.aadharPhotoPath" class="mt-2">
+                <a [href]="getAadharPhotoUrl(selectedRegistration.id)" target="_blank" mat-raised-button color="primary" class="d-inline-flex align-items-center gap-1 btn-sm" style="font-size: 12.5px; height: 32px; padding: 0 12px; line-height: 32px; text-decoration: none;">
+                  <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px; vertical-align: middle;">image</mat-icon>
+                  <span style="vertical-align: middle;">View Aadhaar Photo</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="detail-block mb-3">
+              <label class="text-muted font-size-xs uppercase fw-bold">Mela Details</label>
+              <p class="mb-0"><strong>Visit Date:</strong> {{ selectedRegistration.holyDipDate }}</p>
+              <p class="mb-0"><strong>Booking Date:</strong> {{ selectedRegistration.bookingDate }}</p>
+              <p class="mb-0"><strong>Comorbidities:</strong> {{ selectedRegistration.comorbidities || 'None' }}</p>
+            </div>
+
+            <div class="detail-block mb-3">
+              <label class="text-muted font-size-xs uppercase fw-bold">Present Address</label>
+              <p class="mb-0 text-muted font-size-sm">
+                {{ selectedRegistration.presentAddress }}, {{ selectedRegistration.presentDistrict }}, {{ selectedRegistration.presentState }} - {{ selectedRegistration.presentPinCode }}
+              </p>
+            </div>
+
+            <div class="detail-block mb-3">
+              <label class="text-muted font-size-xs uppercase fw-bold">Permanent Address</label>
+              <p class="mb-0 text-muted font-size-sm">
+                {{ selectedRegistration.permanentAddress }}, {{ selectedRegistration.permanentDistrict }}, {{ selectedRegistration.permanentState }} - {{ selectedRegistration.permanentPinCode }}
+              </p>
+            </div>
+
+            <div class="detail-block mt-4" *ngIf="getCoApplicantsList(selectedRegistration.coApplicant).length > 0">
+              <label class="text-muted font-size-xs uppercase fw-bold mb-2 d-block">Co-Applicants List</label>
+              <div class="table-responsive">
+                <table class="table table-sm table-bordered mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Name</th>
+                      <th>Age</th>
+                      <th>Gender</th>
+                      <th>Comorbidities</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let p of getCoApplicantsList(selectedRegistration.coApplicant)">
+                      <td>{{ p.name }}</td>
+                      <td>{{ p.age }}</td>
+                      <td>{{ p.gender }}</td>
+                      <td><span class="badge bg-light text-dark border">{{ p.comorbidities || 'None' }}</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="detail-block mt-4" *ngIf="currentUser?.role !== 'AUDITOR'">
+              <button mat-raised-button color="primary" class="w-100" (click)="resendEmail(selectedRegistration.id)">
+                <mat-icon>mail</mat-icon> Resend Pass Email
+              </button>
+            </div>
+          </div>
+        </mat-card>
+
+        <mat-card *ngIf="activeTab === 'registrations' && !selectedRegistration" class="p-4 shadow-sm bg-white rounded text-center border-dashed py-5 text-muted h-100 d-flex flex-column align-items-center justify-content-center">
+          <mat-icon style="font-size: 48px; width: 48px; height: 48px;" class="mb-3 mx-auto">info</mat-icon>
+          <p class="mb-0">Click the visibility button (<mat-icon class="icon-inline">visibility</mat-icon>) on a registration row to view full details and co-applicant rosters.</p>
+        </mat-card>
+
+        <!-- Inquiries Details -->
+        <mat-card *ngIf="activeTab === 'inquiries' && selectedInquiry" class="p-4 shadow-sm bg-white rounded details-panel">
+          <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+            <h3 class="mb-0 serif-font">Inquiry Message</h3>
+            <button mat-icon-button (click)="closeInquiryDetails()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+
+          <div class="details-body">
+            <div class="detail-block mb-3">
+              <label class="text-muted font-size-xs uppercase fw-bold">From</label>
+              <h4 class="mb-1">{{ selectedInquiry.name }}</h4>
+              <p class="mb-0 text-muted font-size-sm"><mat-icon class="icon-inline">email</mat-icon> {{ selectedInquiry.email }}</p>
+              <p *ngIf="selectedInquiry.phone" class="mb-0 text-muted font-size-sm"><mat-icon class="icon-inline">phone</mat-icon> {{ selectedInquiry.phone }}</p>
+            </div>
+
+            <div class="detail-block mb-3">
+              <label class="text-muted font-size-xs uppercase fw-bold">Subject</label>
+              <p class="mb-0 fw-bold text-primary">{{ selectedInquiry.subject || '(No Subject)' }}</p>
+            </div>
+
+            <div class="detail-block mb-3">
+              <label class="text-muted font-size-xs uppercase fw-bold">Message Details</label>
+              <p class="mb-0 p-3 bg-light rounded text-dark" style="white-space: pre-wrap; font-size: 14px; border: 1px solid #edf2f7; line-height: 1.5;">
+                {{ selectedInquiry.message }}
+              </p>
+            </div>
+
+            <div class="detail-block mb-3">
+              <label class="text-muted font-size-xs uppercase fw-bold">Submitted Date/Time</label>
+              <p class="mb-0 text-muted font-size-sm">{{ selectedInquiry.submittedAt }}</p>
+            </div>
+
+            <div class="detail-block mt-4" *ngIf="currentUser?.role !== 'AUDITOR'">
+              <button mat-raised-button color="warn" class="w-100" (click)="disposeInquiry(selectedInquiry.id)">
+                <mat-icon>delete</mat-icon> Dispose Inquiry
+              </button>
+            </div>
+          </div>
+        </mat-card>
+
+        <mat-card *ngIf="activeTab === 'inquiries' && !selectedInquiry" class="p-4 shadow-sm bg-white rounded text-center border-dashed py-5 text-muted h-100 d-flex flex-column align-items-center justify-content-center">
+          <mat-icon style="font-size: 48px; width: 48px; height: 48px;" class="mb-3 mx-auto">question_answer</mat-icon>
+          <p class="mb-0">Click the message button (<mat-icon class="icon-inline">chat_bubble</mat-icon>) on an inquiry row to read the full message details and dispose of it.</p>
+        </mat-card>
+
+        <!-- Create New Member Card -->
+        <mat-card *ngIf="activeTab === 'members'" class="p-4 shadow-sm bg-white rounded">
+          <h3 class="serif-font mb-4">Add New Admin Member</h3>
+          <form (ngSubmit)="addMember()">
+            <mat-form-field appearance="outline" class="w-100 mb-3">
+              <mat-label>Username</mat-label>
+              <input matInput name="newUsername" [(ngModel)]="newMember.username" required autocomplete="off">
+              <mat-icon matSuffix>person</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-100 mb-3">
+              <mat-label>Password</mat-label>
+              <input matInput type="password" name="newPassword" [(ngModel)]="newMember.password" required autocomplete="new-password">
+              <mat-icon matSuffix>lock</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-100 mb-3">
+              <mat-label>Full Name</mat-label>
+              <input matInput name="newFullName" [(ngModel)]="newMember.fullName" required autocomplete="name">
+              <mat-icon matSuffix>badge</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-100 mb-4">
+              <mat-label>Role</mat-label>
+              <mat-select name="newRole" [(ngModel)]="newMember.role" required>
+                <mat-option value="SUPER_ADMIN">Super Admin</mat-option>
+                <mat-option value="MELA_OPERATOR">Mela Operator</mat-option>
+                <mat-option value="AUDITOR">Auditor</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <button mat-raised-button type="submit" color="primary" class="w-100 py-2">
+              <mat-icon class="me-1">person_add</mat-icon> Create Member
+            </button>
+          </form>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disposal Message Modal Dialog -->
+  <div *ngIf="showDisposalModal" class="disposal-modal-overlay">
+    <mat-card class="disposal-modal-card p-4 shadow-lg animate-fade-in">
+      <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+        <h3 class="mb-0 serif-font text-primary">Dispose Inquiry #{{ inquiryToDispose?.id }}</h3>
+        <button mat-icon-button (click)="cancelDisposal()" [disabled]="isDisposing">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="modal-body mb-4">
+        <div class="mb-3 p-3 bg-light rounded text-muted font-size-sm" style="border-left: 3px solid #8c7647;">
+          <p class="mb-1"><strong>From:</strong> {{ inquiryToDispose?.name }} ({{ inquiryToDispose?.email }})</p>
+          <p class="mb-1"><strong>Subject:</strong> {{ inquiryToDispose?.subject || '(No Subject)' }}</p>
+          <p class="mb-0 text-truncate"><strong>Inquiry:</strong> "{{ inquiryToDispose?.message }}"</p>
+        </div>
+
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Response Message</mat-label>
+          <textarea matInput rows="5" [(ngModel)]="disposalMessage" placeholder="Write your response message that will be emailed to the pilgrim..."></textarea>
+          <mat-icon matSuffix>email</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2">
+        <button mat-button (click)="cancelDisposal()" [disabled]="isDisposing">Cancel</button>
+        <button mat-raised-button color="warn" [disabled]="!disposalMessage.trim() || isDisposing" (click)="confirmDisposal()" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+          <mat-icon *ngIf="!isDisposing">send</mat-icon>
+          <mat-spinner *ngIf="isDisposing" diameter="20" color="accent" style="display: inline-block;"></mat-spinner>
+          <span>{{ isDisposing ? 'Disposing...' : 'Send Response & Dispose' }}</span>
+        </button>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- Edit Member Modal Dialog -->
+  <div *ngIf="showEditMemberModal" class="disposal-modal-overlay">
+    <mat-card class="disposal-modal-card p-4 shadow-lg animate-fade-in">
+      <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+        <h3 class="mb-0 serif-font text-primary">Edit Admin Member</h3>
+        <button mat-icon-button (click)="cancelEditMember()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="modal-body mb-4">
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Username</mat-label>
+          <input matInput name="editUsername" [(ngModel)]="selectedMemberToEdit.username" required readonly>
+          <mat-icon matSuffix>person</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Full Name</mat-label>
+          <input matInput name="editFullName" [(ngModel)]="selectedMemberToEdit.fullName" required>
+          <mat-icon matSuffix>badge</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>New Password (leave blank to keep current)</mat-label>
+          <input matInput type="password" name="editPassword" [(ngModel)]="selectedMemberToEdit.password" autocomplete="new-password">
+          <mat-icon matSuffix>lock</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Role</mat-label>
+          <mat-select name="editRole" [(ngModel)]="selectedMemberToEdit.role" required [disabled]="currentUser?.username === selectedMemberToEdit.username">
+            <mat-option value="SUPER_ADMIN">Super Admin</mat-option>
+            <mat-option value="MELA_OPERATOR">Mela Operator</mat-option>
+            <mat-option value="AUDITOR">Auditor</mat-option>
+          </mat-select>
+          <mat-hint *ngIf="currentUser?.username === selectedMemberToEdit.username">You cannot change your own role.</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2">
+        <button mat-button (click)="cancelEditMember()">Cancel</button>
+        <button mat-raised-button color="primary" [disabled]="!selectedMemberToEdit?.fullName || !selectedMemberToEdit?.username" (click)="confirmEditMember()">
+          <mat-icon>save</mat-icon> Save Changes
+        </button>
+      </div>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,69 @@
+<!-- registration-success.component.html -->
+
+<div class="success-page">
+
+    <div class="success-card">
+  
+      <!-- Success Icon -->
+      <div class="success-icon">
+        ✓
+      </div>
+  
+      <!-- Heading -->
+      <h1>Registration Successful</h1>
+  
+      <p class="subtitle">
+        Your registration has been completed successfully.
+      </p>
+  
+      <!-- Registration Details -->
+      <div class="details-section">
+  
+        <div class="detail-row">
+          <span class="label">Registration ID</span>
+          <span class="value">{{ registrationData.id }}</span>
+        </div>
+  
+        <div class="detail-row">
+          <span class="label">Full Name</span>
+          <span class="value">{{ registrationData.name }}</span>
+        </div>
+  
+        <div class="detail-row">
+          <span class="label">Mobile Number</span>
+          <span class="value">{{ registrationData.mobileNo }}</span>
+        </div>
+  
+        <div class="detail-row">
+          <span class="label">Email Address</span>
+          <span class="value">{{ registrationData.email }}</span>
+        </div>
+  
+        <div class="detail-row">
+          <span class="label">Gender</span>
+          <span class="value">{{ registrationData.gender }}</span>
+        </div>
+  
+        <div class="detail-row">
+          <span class="label">Address</span>
+          <span class="value">{{ registrationData.address }}</span>
+        </div>
+  
+      </div>
+  
+      <!-- Buttons -->
+      <div class="button-group">
+  
+        <button class="download-btn" (click)="downloadForm()">
+          ⬇ Download Registration Form
+        </button>
+  
+        <button routerLink=" " class="home-btn">
+          🏠 Back To Home
+        </button>
+  
+      </div>
+  
+    </div>
+  
+  </div>

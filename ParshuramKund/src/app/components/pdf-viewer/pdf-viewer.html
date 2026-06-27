@@ -1,0 +1,379 @@
+<div class="container mt-5">
+
+    <mat-card class="p-4 shadow">
+  
+      <h2 class="mb-4 text-center">
+        Parshuram Kund Registration Download
+
+      </h2>
+  
+  <div *ngIf="afterRegister" class="container mt-4">
+
+    <mat-card class="p-4 shadow">
+  
+      <h2 class="mb-4">
+  
+        Search Registration
+ 
+      </h2>
+  
+      <!-- Search Mode Selection -->
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Search By</mat-label>
+            <mat-select [(ngModel)]="searchType" name="searchType" (selectionChange)="onSearchTypeChange()">
+              <mat-option value="phone">Mobile Number</mat-option>
+              <mat-option value="email">Email Address</mat-option>
+              <mat-option value="name">Applicant Name</mat-option>
+              <mat-option value="id">Registration ID</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Unified Direct Search / OTP Request -->
+      <div *ngIf="!otpSent">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>
+                {{ searchType === 'phone' ? 'Mobile Number' : searchType === 'email' ? 'Email Address' : searchType === 'name' ? 'Applicant Name' : 'Registration ID' }}
+              </mat-label>
+              <input matInput name="searchQuery" [(ngModel)]="searchQuery" [placeholder]="searchType === 'phone' ? 'Enter 10-digit mobile number' : searchType === 'email' ? 'Enter email address' : searchType === 'name' ? 'Enter applicant full name' : 'Enter numeric registration ID'">
+            </mat-form-field>
+          </div>
+          
+          <div class="col-md-4">
+            <button mat-raised-button type="button" color="primary" class="w-100 py-2 mb-3" (click)="searchDirectly()" [disabled]="otpSending">
+              <span *ngIf="!otpSending">{{ searchType === 'email' ? 'Send OTP' : 'Search' }}</span>
+              <span *ngIf="otpSending">Sending OTP...</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- OTP Verification Section (Only shown after OTP is sent) -->
+      <div *ngIf="otpSent" class="otp-verification-section">
+        <h4>Email Verification Required</h4>
+        <p>An OTP (One-Time Password) has been sent to <strong>{{ verifiedEmail }}</strong>. Please check your inbox and enter the 6-digit code below to view your registration details.</p>
+        
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Enter 6-Digit OTP</mat-label>
+              <input matInput name="otpQuery" [(ngModel)]="otpQuery" placeholder="Enter 6-digit OTP" maxLength="6">
+            </mat-form-field>
+          </div>
+          
+          <div class="col-md-6 d-flex gap-2">
+            <button mat-raised-button color="primary" class="flex-grow-1 py-2 mb-3" (click)="verifyOtp()" [disabled]="otpVerifying || otpQuery.trim().length !== 6">
+              <span *ngIf="!otpVerifying">Verify OTP</span>
+              <span *ngIf="otpVerifying">Verifying...</span>
+            </button>
+            <button mat-raised-button color="accent" class="py-2 mb-3" (click)="cancelOtp()" [disabled]="otpVerifying">
+              Cancel
+            </button>
+          </div>
+        </div>
+        
+        <div class="mt-2 d-flex justify-content-between">
+          <button mat-button color="primary" style="font-weight: 600; padding: 0;" (click)="resendOtp()" [disabled]="otpVerifying">
+            Resend OTP
+          </button>
+        </div>
+      </div>
+
+  
+    </mat-card>
+  
+    <!-- Spinner -->
+  
+    <div
+      *ngIf="loading"
+      class="text-center mt-5">
+  
+      <mat-spinner></mat-spinner>
+  
+    </div>
+  
+    <!-- Table -->
+  
+    <mat-card
+      *ngIf="registrations.length > 0"
+      class="mt-4 p-3 shadow">
+  
+      <table
+        mat-table
+        [dataSource]="pagedRegistrations"
+        class="w-100">
+  
+        <!-- Registration No -->
+  
+        <ng-container matColumnDef="registrationNo">
+  
+          <th mat-header-cell *matHeaderCellDef>
+            Registration No
+          </th>
+  
+          <td mat-cell *matCellDef="let element">
+            {{ element.id }}
+          </td>
+  
+        </ng-container>
+  
+        <!-- Name -->
+  
+        <ng-container matColumnDef="name">
+  
+          <th mat-header-cell *matHeaderCellDef>
+           Applicant Name
+          </th>
+  
+          <td mat-cell *matCellDef="let element">
+            {{ element.fullName }}
+          </td>
+  
+        </ng-container>
+        <!-- Booking Date -->
+  
+        <ng-container matColumnDef="bookingDate">
+  
+          <th mat-header-cell *matHeaderCellDef>
+            Booking Date
+          </th>
+  
+          <td mat-cell *matCellDef="let element">
+            {{ element.bookingDate }}
+          </td>
+  
+        </ng-container>
+  
+        <!-- Visit Date -->
+  
+        <ng-container matColumnDef="visitDate">
+  
+          <th mat-header-cell *matHeaderCellDef>
+            Visit Date
+          </th>
+  
+          <td mat-cell *matCellDef="let element">
+            {{ element.holyDipDate }}
+          </td>
+  
+        </ng-container>
+  
+        <!-- Action -->
+  
+        <ng-container matColumnDef="action">
+  
+          <th mat-header-cell *matHeaderCellDef>
+            Action
+          </th>
+  
+          <td mat-cell *matCellDef="let element">
+  
+            <button
+              mat-raised-button
+              color="accent"
+              (click)="submitForm(element.id)">
+  
+              View Pass
+  
+            </button>
+  
+          </td>
+  
+        </ng-container>
+  
+        <tr
+          mat-header-row
+          *matHeaderRowDef="displayedColumns">
+  
+        </tr>
+  
+        <tr
+          mat-row
+          *matRowDef="
+            let row;
+            columns: displayedColumns;
+          ">
+  
+        </tr>
+  
+      </table>
+      <div class="pagination" *ngIf="registrations.length > pageSize">
+
+        <button
+          (click)="previousPage()"
+          [disabled]="currentPage === 1">
+          Previous
+        </button>
+    
+        <span>
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+    
+        <button
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages">
+          Next
+        </button>
+    
+      </div>
+    
+     
+    </mat-card>
+  
+  </div>
+    
+  
+    </mat-card>
+  
+    <!-- Spinner -->
+<!--   
+    <div class="text-center mt-5" *ngIf="loading">
+  
+      <mat-spinner></mat-spinner>
+  
+    </div>
+   -->
+    <!-- PDF Preview -->
+  
+    <div *ngIf="pdfViewBool" class="mt-5">
+  
+      <mat-card class="p-4 shadow">
+
+        <!-- Premium HTML e-Pass Card -->
+        <div *ngIf="applicantDetails" class="epass-card mb-4">
+          <div class="epass-header">
+            <div class="epass-brand">
+              <img src="assets/Parshuramlogo.png" alt="Mela Logo" class="epass-logo-img" onerror="this.src='../../../assets/Parshuramlogo.png'; this.onerror=null;">
+              <div>
+                <h3>PARSHURAM KUND MELA 2027</h3>
+                <p>Govt. of Arunachal Pradesh | Pilgrim Entry Pass</p>
+              </div>
+            </div>
+            <div class="epass-badge">
+              CONFIRMED
+            </div>
+          </div>
+          
+          <div class="epass-body">
+            <div class="epass-details">
+              <div class="epass-row">
+                <div class="epass-col">
+                  <span class="epass-label">REGISTRATION ID</span>
+                  <span class="epass-value highlight">#{{ applicantDetails.id }}</span>
+                </div>
+                <div class="epass-col">
+                  <span class="epass-label">BOOKING DATE</span>
+                  <span class="epass-value">{{ applicantDetails.bookingDate }}</span>
+                </div>
+              </div>
+              
+              <div class="epass-row">
+                <div class="epass-col">
+                  <span class="epass-label">PILGRIM NAME</span>
+                  <span class="epass-value">{{ applicantDetails.fullName }}</span>
+                </div>
+                <div class="epass-col">
+                  <span class="epass-label">AGE / GENDER</span>
+                  <span class="epass-value">{{ applicantDetails.age }} / {{ applicantDetails.gender }}</span>
+                </div>
+              </div>
+              
+              <div class="epass-row">
+                <div class="epass-col">
+                  <span class="epass-label">DATE OF HOLY DIP</span>
+                  <span class="epass-value date-highlight">{{ applicantDetails.holyDipDate }}</span>
+                </div>
+                <div class="epass-col">
+                  <span class="epass-label">AADHAAR NUMBER</span>
+                  <span class="epass-value">{{ applicantDetails.aadharNumber }}</span>
+                </div>
+              </div>
+              
+              <div class="epass-row" *ngIf="applicantDetails.presentAddress">
+                <div class="epass-col-full">
+                  <span class="epass-label">ADDRESS</span>
+                  <span class="epass-value address-value">
+                    {{ applicantDetails.presentAddress }}, {{ applicantDetails.presentDistrict }}, {{ applicantDetails.presentState }} - {{ applicantDetails.presentPinCode }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="epass-qr">
+              <img [src]="qrUrl" alt="Verification QR Code" class="epass-qr-img">
+              <span class="epass-qr-label">Scan to Verify Entry</span>
+            </div>
+          </div>
+          
+          <!-- Co-Travelers Section -->
+          <div *ngIf="coTravellersList && coTravellersList.length > 0" class="epass-cotravelers">
+            <h4>CO-TRAVELERS ({{ coTravellersList.length }})</h4>
+            <div class="cotraveler-grid">
+              <div *ngFor="let cotraveller of coTravellersList; let i = index" class="cotraveler-item">
+                <span class="cotraveler-num">{{ i + 1 }}</span>
+                <div class="cotraveler-info">
+                  <span class="cotraveler-name">{{ cotraveller.name }}</span>
+                  <span class="cotraveler-meta">Age: {{ cotraveller.age }} | Gender: {{ cotraveller.gender }}</span>
+                  <span class="cotraveler-comorb" *ngIf="cotraveller.comorbidities && cotraveller.comorbidities !== 'None'">
+                    Medical: {{ cotraveller.comorbidities }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="epass-footer">
+            <span>System Generated e-Pass. Present this card or the downloaded PDF at the Entry Gate.</span>
+          </div>
+        </div>
+  
+        <div class="d-flex justify-content-between mb-4">
+  
+          <button mat-raised-button
+                  color="accent"
+                  (click)="downloadPdf()">
+  
+            Download Official PDF Pass
+  
+          </button>
+  
+          <button mat-raised-button
+                  color="warn"
+                  (click)="printPdf()">
+  
+            Print Official Pass
+  
+          </button>
+  
+        </div>
+
+        <!-- Toggle PDF Document Preview Button -->
+        <div class="pdf-viewer-toggle-container mb-4" *ngIf="applicantDetails">
+          <button mat-raised-button color="primary" class="w-100" (click)="togglePdfFrame()">
+            {{ showPdfFrame ? 'Hide PDF Document Preview' : 'Show PDF Document Preview' }}
+          </button>
+        </div>
+  
+        <!-- PDF Iframe -->
+        <div *ngIf="showPdfFrame">
+ 
+            <iframe
+              id="pdfFrame"
+              [src]="pdfUrl"
+              width="100%"
+              height="900px">
+        
+            </iframe>
+        
+        </div>
+  
+      </mat-card>
+  
+    </div>
+  
+  </div>

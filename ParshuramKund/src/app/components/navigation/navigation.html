@@ -1,0 +1,65 @@
+<mat-toolbar class="navbar">
+  <!-- Logo & Title Section -->
+  <div class="logo-section" routerLink="">
+    <div class="logo-wrapper">
+      <img src="../../../assets/Parshuramlogo.png" alt="Logo" class="logo" />
+    </div>
+    <div class="brand-text">
+      <span class="mela-title">PARSHURAM KUND MELA 2027</span>
+      <span class="admin-subtitle">District Administration, Lohit | Govt. of Arunachal Pradesh</span>
+    </div>
+  </div>
+
+  <span class="spacer"></span>
+
+  <!-- Desktop Navigation Menu -->
+  <div class="desktop-menu">
+    <a class="nav-link" routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
+    <a class="nav-link" routerLink="/about" routerLinkActive="active">About</a>
+    <a class="nav-link" routerLink="/gallery" routerLinkActive="active">Gallery</a>
+    <a class="nav-link" routerLink="/how-to-reach" routerLinkActive="active">How to Reach</a>
+    <a class="nav-link" routerLink="/contact" routerLinkActive="active">Contact</a>
+    
+    <div class="nav-actions">
+      <a mat-flat-button routerLink="/registration" class="btn-register">Register</a>
+      <a mat-flat-button routerLink="/pdfDownload" class="btn-pass">Print Pass</a>
+      <a mat-flat-button routerLink="/admin" class="btn-admin">Admin</a>
+    </div>
+  </div>
+
+  <!-- Mobile Navigation Menu -->
+  <div class="mobile-menu">
+    <button mat-icon-button [matMenuTriggerFor]="menu" class="mobile-menu-trigger">
+      <mat-icon>menu</mat-icon>
+    </button>
+
+    <mat-menu #menu="matMenu" class="premium-mobile-menu">
+      <button mat-menu-item routerLink="/">
+        <mat-icon>home</mat-icon>
+        <span>Home</span>
+      </button>
+      <button mat-menu-item routerLink="/about">
+        <mat-icon>info</mat-icon>
+        <span>About</span>
+      </button>
+      <button mat-menu-item routerLink="/gallery">
+        <mat-icon>photo_library</mat-icon>
+        <span>Gallery</span>
+      </button>
+      <button mat-menu-item routerLink="/how-to-reach">
+        <mat-icon>directions_car</mat-icon>
+        <span>How to Reach</span>
+      </button>
+      <button mat-menu-item routerLink="/contact">
+        <mat-icon>contact_mail</mat-icon>
+        <span>Contact</span>
+      </button>
+      <div class="nav-divider"></div>
+      <div class="mobile-menu-actions">
+        <a mat-flat-button routerLink="/registration" class="btn-register w-100 mb-2 mt-2 text-center">Register</a>
+        <a mat-flat-button routerLink="/pdfDownload" class="btn-pass w-100 mb-2 text-center">Print Pass</a>
+        <a mat-flat-button routerLink="/admin" class="btn-admin w-100 text-center">Admin</a>
+      </div>
+    </mat-menu>
+  </div>
+</mat-toolbar>

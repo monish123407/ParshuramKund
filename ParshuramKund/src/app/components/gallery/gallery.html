@@ -1,0 +1,42 @@
+<div class="gallery-wrapper">
+  <!-- Banner Header -->
+  <div class="page-header">
+    <img src="assets/gallery/page-hero.ecf65fd.jpg" alt="Parshuram Kund Banner" class="banner-image">
+    <div class="page-header-shadow"></div>
+    <div class="page-header-title">
+      <h1>Gallery</h1>
+      <p class="subtitle">Glimpses from in and around Parshuram Kund Mela</p>
+    </div>
+  </div>
+
+  <!-- Grid Section -->
+  <div class="container py-5">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+      <div class="col" *ngFor="let img of images; let i = index">
+        <div class="gallery-card" (click)="openLightbox(i)">
+          <div class="gallery-img-container">
+            <img [src]="img" alt="Glimpse of Parshuram Kund Mela" class="gallery-img" loading="lazy">
+            <div class="overlay">
+              <span class="zoom-icon">🔍</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox Modal -->
+  <div class="lightbox" *ngIf="selectedImageIndex !== null" (click)="closeLightbox()">
+    <div class="lightbox-content" (click)="$event.stopPropagation()">
+      <button class="close-btn" (click)="closeLightbox()">&times;</button>
+      
+      <button class="nav-btn prev-btn" (click)="prevImage($event)">&#10094;</button>
+      <img [src]="images[selectedImageIndex]" alt="Enlarged Glimpse" class="lightbox-img">
+      <button class="nav-btn next-btn" (click)="nextImage($event)">&#10095;</button>
+
+      <div class="lightbox-counter">
+        Image {{ selectedImageIndex + 1 }} of {{ images.length }}
+      </div>
+    </div>
+  </div>
+</div>

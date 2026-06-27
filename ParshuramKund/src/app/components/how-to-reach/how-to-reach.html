@@ -1,0 +1,163 @@
+<div class="image-container">
+  <img src="../../../assets/Parshuramcommon.png" alt="Parshuram Kund" class="banner-image" />
+
+  <div class="center-text">
+    <h1>How To Reach</h1>
+    <p>Spiritual Destination of Arunachal Pradesh</p>
+  </div>
+</div>
+
+<div class="container py-5">
+  <!-- Title -->
+  <div class="text-center mb-5">
+    <p class="text-muted">
+      To enable the visitors to obtain easy entry, District Administration has also been making
+      suitable provisions for the issue of Inner Line Permit for 30 days both at Dirak check gate
+      and Sunpura check gate for visitors from outside. To reach Parshuram kund the visitors can
+      travel from either Dibrugarh-Tinsukia via Rupai near Doomdooma to Dirak check gate where Inner
+      Line Permit will be issued on the spot to them. Another route is through Sadiya, crossing the
+      Bhupen Hazarika Bridge via Sunpura to Tezu, the District Headquarters where a big shopping
+      fare is held in January every year. For safe and convenient journey of pilgrims, Lohit
+      District Administration has been liaising with Tinsukia District Administration to maintain
+      security along both routes.
+    </p>
+  </div>
+
+  <!-- Tabs -->
+  <ul class="nav nav-pills nav-justified mb-4" id="reachTab" role="tablist">
+    <!-- Air -->
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'air'"
+        (click)="selectTab('air')"
+        type="button"
+      >
+        ✈ By Air
+      </button>
+    </li>
+
+    <!-- Train -->
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'train'"
+        (click)="selectTab('train')"
+        type="button"
+      >
+        🚆 By Train
+      </button>
+    </li>
+
+    <!-- Road -->
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'road'"
+        (click)="selectTab('road')"
+        type="button"
+      >
+        🛣 By Road
+      </button>
+    </li>
+  </ul>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <!-- Air -->
+    <div class="tab-pane fade show active" *ngIf="activeTab === 'air'">
+      <div class="card shadow-lg border-0">
+        <div class="map-wrapper">
+          <!-- Glassmorphic map loader spinner -->
+          <div class="map-placeholder" *ngIf="!mapLoaded.air">
+            <div class="loader-spinner"></div>
+            <p>Connecting to satellite routing (Air)...</p>
+          </div>
+
+          <iframe
+            *ngIf="mapInitialized.air"
+            [class.loaded]="mapLoaded.air"
+            class="map-iframe"
+            src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d956151.6633490789!2d95.03523348319153!3d27.699368781016503!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e0!4m5!1s0x37409f0a988ccddb%3A0x52d3689326f31d52!2sDibrugarh%20Airport%2C%20F2MF%2BJ6P%2C%20Assam%20786012!3m2!1d27.4840847!2d95.0230892!4m5!1s0x373e79228c2086fb%3A0x221c96827a5fdbdc!2sParsuram%20Kund%2C%20Arunachal%20Pradesh%20792001!3m2!1d27.8865481!2d96.3742848!5e1!3m2!1sen!2sin!4v1779113451545!5m2!1sen!2sin"
+            allowfullscreen=""
+            referrerpolicy="no-referrer-when-downgrade"
+            (load)="onMapLoad('air')"
+          ></iframe>
+        </div>
+
+        <div class="card-body p-4">
+          <h2>Reach By Air</h2>
+
+          <p>
+            The nearest airport is Dibrugarh Airport, Assam. Visitors can hire taxis or buses from
+            Dibrugarh to Tezu and Parshuram Kund.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Train -->
+    <div class="tab-pane fade show active" *ngIf="activeTab === 'train'">
+      <div class="card shadow-lg border-0">
+        <div class="map-wrapper">
+          <!-- Glassmorphic map loader spinner -->
+          <div class="map-placeholder" *ngIf="!mapLoaded.train">
+            <div class="loader-spinner"></div>
+            <p>Connecting to satellite routing (Train)...</p>
+          </div>
+
+          <iframe
+            *ngIf="mapInitialized.train"
+            [class.loaded]="mapLoaded.train"
+            class="map-iframe"
+            src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d478028.0180906553!2d95.53947808100591!3d27.71028170131012!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e0!4m5!1s0x373f6ae3439b7539%3A0xc031719cd9e68e07!2sTinsukia%20ASTC%20Bus%20%26%20Magic%20Terminus%2C%20Senairam%20Bazar%2C%20Tinsukia%2C%20Assam%20786125!3m2!1d27.488332099999997!2d95.36342859999999!4m5!1s0x373e79228c2086fb%3A0x221c96827a5fdbdc!2sParsuram%20Kund%2C%20Arunachal%20Pradesh%20792001!3m2!1d27.8865481!2d96.3742848!5e1!3m2!1sen!2sin!4v1779113533976!5m2!1sen!2sin"
+            allowfullscreen=""
+            referrerpolicy="no-referrer-when-downgrade"
+            (load)="onMapLoad('train')"
+          ></iframe>
+        </div>
+        <div class="card-body p-4">
+          <h2>Reach By Train</h2>
+
+          <p>
+            The nearest railway station from Parshuram Kund is located in Tinsukia at a distance of
+            about 160 km. Once you have reached the railway station, you can hire a cab or bus to
+            Parshuram Kund
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Road -->
+    <div class="tab-pane fade show active" *ngIf="activeTab === 'road'">
+      <div class="card shadow-lg border-0">
+        <div class="map-wrapper">
+          <!-- Glassmorphic map loader spinner -->
+          <div class="map-placeholder" *ngIf="!mapLoaded.road">
+            <div class="loader-spinner"></div>
+            <p>Connecting to satellite routing (Road)...</p>
+          </div>
+
+          <iframe
+            *ngIf="mapInitialized.road"
+            [class.loaded]="mapLoaded.road"
+            class="map-iframe"
+            src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d119293.41810343291!2d96.18168734102782!3d27.904614193563237!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e0!4m5!1s0x373e642e6ba59135%3A0xe15c285522555722!2sTezu%2C%20Arunachal%20Pradesh%20792001!3m2!1d27.9276542!2d96.1533094!4m5!1s0x373e79228c2086fb%3A0x221c96827a5fdbdc!2sParsuram%20Kund%2C%20Arunachal%20Pradesh%20792001!3m2!1d27.8865481!2d96.3742848!5e1!3m2!1sen!2sin!4v1779113600895!5m2!1sen!2sin"
+            allowfullscreen=""
+            referrerpolicy="no-referrer-when-downgrade"
+            (load)="onMapLoad('road')"
+          ></iframe>
+        </div>
+        <div class="card-body p-4">
+          <h2>Reach By Road</h2>
+
+          <p>
+            Parshuram Kund is connected by road through Tezu, Namsai and Dibrugarh with regular taxi
+            and bus services.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
