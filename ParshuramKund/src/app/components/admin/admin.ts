@@ -43,6 +43,7 @@ export class Admin implements OnInit {
   stats = {
     total: 0,
     coApplicants: 0,
+    totalDevotees: 0,
     male: 0,
     female: 0,
     inquiries: 0
@@ -269,6 +270,7 @@ export class Admin implements OnInit {
 
     this.stats.male = maleCount;
     this.stats.female = femaleCount;
+    this.stats.totalDevotees = maleCount + femaleCount;
     this.stats.inquiries = this.inquiries.length;
   }
 
