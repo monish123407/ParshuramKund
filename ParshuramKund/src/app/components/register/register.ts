@@ -68,8 +68,8 @@ export class Register {
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
-      if (file.size > 5 * 1024 * 1024) {
-        this.aadharFileError = 'File size must be under 5MB';
+      if (file.size > 200 * 1024) {
+        this.aadharFileError = 'File size must be under 200KB';
         this.selectedAadharFile = null;
         return;
       }

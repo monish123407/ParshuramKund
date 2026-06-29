@@ -237,9 +237,9 @@ public class ApplicantController {
 	                return ResponseEntity.badRequest().body(java.util.Map.of("error", "File is empty"));
 	            }
 	            
-	            // Check file size (5MB maximum)
-	            if (file.getSize() > 5L * 1024 * 1024) {
-	                return ResponseEntity.badRequest().body(java.util.Map.of("error", "File size exceeds 5MB limit"));
+	            // Check file size (200KB maximum)
+	            if (file.getSize() > 200L * 1024) {
+	                return ResponseEntity.badRequest().body(java.util.Map.of("error", "File size exceeds 200KB limit"));
 	            }
 
 	            
