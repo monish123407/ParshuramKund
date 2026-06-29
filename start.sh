@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Load environment variables from .env file if it exists
+if [ -f .env ]; then
+  echo "Loading environment variables from .env..."
+  set -a
+  source .env
+  set +a
+fi
+
 echo "========================================================"
 echo "      Starting Parshuram Kund Mela 2027 Application    "
 echo "========================================================"

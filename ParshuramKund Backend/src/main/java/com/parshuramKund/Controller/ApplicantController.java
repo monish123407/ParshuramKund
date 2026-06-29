@@ -49,11 +49,17 @@ public class ApplicantController {
 	    private EmailService emailService;
 
 	    @PostMapping("/register")
-	    public ResponseEntity<ApplicantDTO> register(
+	    public ResponseEntity<?> register(
 	             @RequestBody ApplicantDTO request
 	    ) {
 	    	log.info("Registering user: {}", request.getFullName());
-	        
+	        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+	            return ResponseEntity.badRequest().body(java.util.Map.of("error", "Email is required"));
+	        }
+	        String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+	        if (!request.getEmail().trim().matches(emailRegex)) {
+	            return ResponseEntity.badRequest().body(java.util.Map.of("error", "Invalid email format"));
+	        }
 	        try {
 
 	        	ApplicantDTO response = applicantService.registerUser(request);

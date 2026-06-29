@@ -121,9 +121,11 @@ export class Register {
 
   isStep2Valid(): boolean {
     const app = this.applicant;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return !!(
       app.phone && app.phone.trim() !== '' &&
-      app.gender && app.gender !== ''
+      app.gender && app.gender !== '' &&
+      app.email && emailRegex.test(app.email.trim())
     );
   }
 
