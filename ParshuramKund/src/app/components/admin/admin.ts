@@ -238,8 +238,37 @@ export class Admin implements OnInit {
       }
       return acc;
     }, 0);
-    this.stats.male = this.registrations.filter(r => r.gender?.toLowerCase() === 'male').length;
-    this.stats.female = this.registrations.filter(r => r.gender?.toLowerCase() === 'female').length;
+
+    let maleCount = 0;
+    let femaleCount = 0;
+
+    for (const r of this.registrations) {
+      if (r.gender?.toLowerCase() === 'male') {
+        maleCount++;
+      } else if (r.gender?.toLowerCase() === 'female') {
+        femaleCount++;
+      }
+
+      if (r.coApplicant) {
+        try {
+          const arr = JSON.parse(r.coApplicant);
+          if (Array.isArray(arr)) {
+            for (const co of arr) {
+              if (co.gender?.toLowerCase() === 'male') {
+                maleCount++;
+              } else if (co.gender?.toLowerCase() === 'female') {
+                femaleCount++;
+              }
+            }
+          }
+        } catch (e) {
+          // Ignore json parsing error
+        }
+      }
+    }
+
+    this.stats.male = maleCount;
+    this.stats.female = femaleCount;
     this.stats.inquiries = this.inquiries.length;
   }
 
