@@ -82,7 +82,7 @@ public class ApplicantController {
 	            byte[] pdf = pdfService.generatePdf(id);
 	            return ResponseEntity.ok()
 	                    .header(HttpHeaders.CONTENT_DISPOSITION,
-	                            "attachment; filename=registration-pass.pdf")
+	                            "inline; filename=registration-pass.pdf")
 	                    .contentType(MediaType.APPLICATION_PDF)
 	                    .body(pdf);
 	        } catch (Exception e) {
