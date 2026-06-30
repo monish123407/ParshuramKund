@@ -70,11 +70,11 @@
             <mat-form-field appearance="outline" class="premium-field">
               <mat-label>Select Date of Holy Dip</mat-label>
               <mat-select [(ngModel)]="applicant.holyDipDate">
-                <mat-option value="12 Jan">12 JAN TUE</mat-option>
-                <mat-option value="13 Jan">13 JAN WED</mat-option>
-                <mat-option value="14 Jan">14 JAN THU</mat-option>
-                <mat-option value="15 Jan">15 JAN FRI</mat-option>
-                <mat-option value="16 Jan">16 JAN SAT</mat-option>
+                <mat-option value="12 Jan">12 JAN TUE, 2027</mat-option>
+                <mat-option value="13 Jan">13 JAN WED, 2027</mat-option>
+                <mat-option value="14 Jan">14 JAN THU, 2027</mat-option>
+                <mat-option value="15 Jan">15 JAN FRI, 2027</mat-option>
+                <mat-option value="16 Jan">16 JAN SAT, 2027</mat-option>
               </mat-select>
             </mat-form-field>
           </div>
@@ -112,13 +112,18 @@
             <div class="file-upload-wrapper">
               <label class="file-upload-label">Upload Aadhaar Card (Photo/PDF, max 200KB)*</label>
               <div class="file-upload-controls">
-                <input type="file" id="aadharPhoto" (change)="onAadharFileSelected($event)" accept="image/*,application/pdf" class="file-input-hidden" required>
-                <label for="aadharPhoto" class="file-upload-btn">
-                  <mat-icon>cloud_upload</mat-icon>
-                  <span>{{ selectedAadharFile ? selectedAadharFile.name : 'Choose file' }}</span>
+                <input type="file" id="aadharPhoto" (change)="onAadharFileSelected($event)" accept="image/*,application/pdf" class="file-input-hidden" required [disabled]="isUploadingAadhar">
+                <label for="aadharPhoto" class="file-upload-btn" [class.disabled]="isUploadingAadhar">
+                  <mat-spinner *ngIf="isUploadingAadhar" diameter="18" class="me-2" style="display: inline-block;"></mat-spinner>
+                  <mat-icon *ngIf="!isUploadingAadhar">cloud_upload</mat-icon>
+                  <span>{{ isUploadingAadhar ? 'Uploading document...' : (selectedAadharFile ? selectedAadharFile.name : 'Choose file') }}</span>
                 </label>
               </div>
               <div *ngIf="aadharFileError" class="file-upload-error">{{ aadharFileError }}</div>
+              <div *ngIf="applicant.aadharPhotoPath && !isUploadingAadhar && !aadharFileError" class="file-upload-success d-flex align-items-center mt-1">
+                <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-right: 4px;">check_circle</mat-icon>
+                <span>Document uploaded successfully!</span>
+              </div>
             </div>
           </div>
         </div>

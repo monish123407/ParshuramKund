@@ -807,6 +807,18 @@
         white-space: nowrap;
         max-width: calc(100% - 35px);
       }
+      &.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        border-color: #cccccc;
+        color: #888888;
+        background: #f5f5f5;
+        &:hover {
+          background: #f5f5f5;
+          border-color: #cccccc;
+          color: #888888;
+        }
+      }
     }
   }
   
@@ -815,5 +827,12 @@
     font-size: 12px;
     margin-top: 6px;
     font-weight: 500;
+  }
+
+  .file-upload-success {
+    color: #38a169;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 6px;
   }
 }

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -32,13 +32,19 @@ export class Register {
   currentStep = 1;
   isSubmitting = false;
 
-  constructor(private http: HttpClient, private applicantService: ApplicantService, private router: Router) {}
+  constructor(
+    private http: HttpClient, 
+    private applicantService: ApplicantService, 
+    private router: Router,
+    private cd: ChangeDetectorRef
+  ) {}
   ngOnInit() {
     this.filteredPresentStates = [...this.statesList];
     this.filteredPermanentStates = [...this.statesList];
   }
   selectedAadharFile: File | null = null;
   aadharFileError: string | null = null;
+  isUploadingAadhar = false;
   coTravellers: any[] = [];
   applicant = {
     fullName: '',
@@ -71,16 +77,37 @@ export class Register {
       if (file.size > 200 * 1024) {
         this.aadharFileError = 'File size must be under 200KB';
         this.selectedAadharFile = null;
+        this.applicant.aadharPhotoPath = '';
         return;
       }
       const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
       if (!allowedTypes.includes(file.type)) {
         this.aadharFileError = 'Only Jpeg, Png, and Pdf files are allowed';
         this.selectedAadharFile = null;
+        this.applicant.aadharPhotoPath = '';
         return;
       }
       this.aadharFileError = null;
       this.selectedAadharFile = file;
+
+      this.isUploadingAadhar = true;
+      this.applicant.aadharPhotoPath = '';
+      this.cd.detectChanges();
+
+      this.applicantService.uploadAadharPhoto(file).subscribe({
+        next: (uploadRes: any) => {
+          this.isUploadingAadhar = false;
+          this.applicant.aadharPhotoPath = uploadRes.filePath;
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          this.isUploadingAadhar = false;
+          this.selectedAadharFile = null;
+          this.applicant.aadharPhotoPath = '';
+          this.aadharFileError = 'Failed to upload Aadhaar document. Please try again.';
+          this.cd.detectChanges();
+        }
+      });
     }
   }
 
@@ -92,7 +119,9 @@ export class Register {
       app.holyDipDate && app.holyDipDate !== '' &&
       app.age !== null && app.age !== undefined && app.age !== '' &&
       app.aadharNumber && aadharRegex.test(app.aadharNumber) &&
-      this.selectedAadharFile !== null
+      this.selectedAadharFile !== null &&
+      app.aadharPhotoPath && app.aadharPhotoPath !== '' &&
+      !this.isUploadingAadhar
     );
   }
 
@@ -320,71 +349,60 @@ export class Register {
   submitForm() {
     if (this.isSubmitting) return;
 
-    if (!this.selectedAadharFile) {
-      this.aadharFileError = 'Aadhaar photo is required';
+    if (!this.selectedAadharFile || !this.applicant.aadharPhotoPath) {
+      this.aadharFileError = 'Aadhaar photo is required and must be uploaded';
       return;
     }
 
     this.isSubmitting = true;
 
-    this.applicantService.uploadAadharPhoto(this.selectedAadharFile).subscribe({
-      next: (uploadRes: any) => {
-        this.applicant.aadharPhotoPath = uploadRes.filePath;
+    const comorbiditiesStr = this.applicant.comorbidities && this.applicant.comorbidities.length > 0
+      ? this.applicant.comorbidities.join(', ')
+      : 'None';
 
-        const comorbiditiesStr = this.applicant.comorbidities && this.applicant.comorbidities.length > 0
-          ? this.applicant.comorbidities.join(', ')
-          : 'None';
+    const payload = { 
+      ...this.applicant,
+      comorbidities: comorbiditiesStr
+    };
 
-        const payload = { 
-          ...this.applicant,
-          comorbidities: comorbiditiesStr
-        };
-
-        const serializedCoTravellers = this.coTravellers.map(t => {
-          const coComorbiditiesStr = t.comorbidities && t.comorbidities.length > 0
-            ? t.comorbidities.join(', ')
-            : 'None';
-          return {
-            name: t.name,
-            age: t.age,
-            gender: t.gender,
-            comorbidities: coComorbiditiesStr
-          };
-        });
-
-        payload.coTraveller = JSON.stringify(serializedCoTravellers);
-        
-        if (payload.presentDistrict === 'Other') {
-          payload.presentDistrict = this.customPresentDistrict;
-        }
-        if (payload.permanentDistrict === 'Other') {
-          payload.permanentDistrict = this.customPermanentDistrict;
-        }
-
-        console.log(payload);
-        this.applicantService.register(payload)
-          .subscribe({
-            next: (res:any) => {
-              this.isSubmitting = false;
-              console.log(res);
-              this.router.navigate(['/pdfDownload'],{
-                queryParams: {
-                  id: res.id
-                }
-              })
-            },
-            error: (err) => {
-              this.isSubmitting = false;
-              console.log(err);
-            }
-          });
-      },
-      error: (uploadErr) => {
-        this.isSubmitting = false;
-        this.aadharFileError = 'Failed to upload Aadhaar photo. Please try again.';
-        console.error('Upload failed:', uploadErr);
-      }
+    const serializedCoTravellers = this.coTravellers.map(t => {
+      const coComorbiditiesStr = t.comorbidities && t.comorbidities.length > 0
+        ? t.comorbidities.join(', ')
+        : 'None';
+      return {
+        name: t.name,
+        age: t.age,
+        gender: t.gender,
+        comorbidities: coComorbiditiesStr
+      };
     });
+
+    payload.coTraveller = JSON.stringify(serializedCoTravellers);
+    
+    if (payload.presentDistrict === 'Other') {
+      payload.presentDistrict = this.customPresentDistrict;
+    }
+    if (payload.permanentDistrict === 'Other') {
+      payload.permanentDistrict = this.customPermanentDistrict;
+    }
+
+    console.log(payload);
+    this.applicantService.register(payload)
+      .subscribe({
+        next: (res:any) => {
+          this.isSubmitting = false;
+          console.log(res);
+          this.router.navigate(['/pdfDownload'],{
+            queryParams: {
+              id: res.id
+            }
+          })
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          console.log(err);
+        }
+      });
   }
 
 
