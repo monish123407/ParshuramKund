@@ -13,7 +13,7 @@ export class ApplicantService {
     return 'http://localhost:8081';
   }
 
-  private get apiUrl(): string {
+  get apiUrl(): string {
     return `${this.baseUrl}/api/auth`;
   }
 
@@ -27,6 +27,10 @@ export class ApplicantService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<any>(`${this.apiUrl}/upload-aadhar`, formData);
+  }
+
+  deleteAadharPhoto(filePath: string) {
+    return this.http.post<any>(`${this.apiUrl}/delete-aadhar`, { filePath });
   }
 
 

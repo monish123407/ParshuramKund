@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnDestroy, inject } from '@angular/core';
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -17,7 +17,7 @@ import { STATES, STATE_DISTRICTS_MAP } from './states-and-districts';
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
-export class Register {
+export class Register implements OnDestroy {
   statesList = STATES;
   presentDistricts: string[] = [];
   permanentDistricts: string[] = [];
@@ -31,6 +31,7 @@ export class Register {
 
   currentStep = 1;
   isSubmitting = false;
+  isRegistrationSuccess = false;
 
   constructor(
     private http: HttpClient, 
@@ -90,6 +91,14 @@ export class Register {
       this.aadharFileError = null;
       this.selectedAadharFile = file;
 
+      const previousPath = this.applicant.aadharPhotoPath;
+      if (previousPath && previousPath.trim() !== '') {
+        this.applicantService.deleteAadharPhoto(previousPath).subscribe({
+          next: () => console.log('Cleaned up previous Aadhaar photo:', previousPath),
+          error: (err) => console.error('Failed to cleanup previous photo:', err)
+        });
+      }
+
       this.isUploadingAadhar = true;
       this.applicant.aadharPhotoPath = '';
       this.cd.detectChanges();
@@ -123,6 +132,29 @@ export class Register {
       app.aadharPhotoPath && app.aadharPhotoPath !== '' &&
       !this.isUploadingAadhar
     );
+  }
+
+  ngOnDestroy() {
+    this.cleanupAadharPhoto();
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification($event: any) {
+    this.cleanupAadharPhoto();
+  }
+
+  private cleanupAadharPhoto() {
+    if (this.applicant.aadharPhotoPath && !this.isRegistrationSuccess) {
+      const url = `${this.applicantService.apiUrl}/delete-aadhar`;
+      const payload = JSON.stringify({ filePath: this.applicant.aadharPhotoPath });
+      
+      if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+        const blob = new Blob([payload], { type: 'application/json' });
+        navigator.sendBeacon(url, blob);
+      } else {
+        this.applicantService.deleteAadharPhoto(this.applicant.aadharPhotoPath).subscribe();
+      }
+    }
   }
 
 
@@ -390,6 +422,7 @@ export class Register {
     this.applicantService.register(payload)
       .subscribe({
         next: (res:any) => {
+          this.isRegistrationSuccess = true;
           this.isSubmitting = false;
           console.log(res);
           this.router.navigate(['/pdfDownload'],{

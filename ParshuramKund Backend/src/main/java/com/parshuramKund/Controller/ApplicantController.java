@@ -322,5 +322,37 @@ public class ApplicantController {
 	            return ResponseEntity.internalServerError().build();
 	        }
 	    }
+
+	    @PostMapping("/delete-aadhar")
+	    public ResponseEntity<?> deleteAadharPhoto(@RequestBody java.util.Map<String, String> request) {
+	        try {
+	            String fileName = request.get("filePath");
+	            if (fileName == null || fileName.trim().isEmpty() || fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) {
+	                return ResponseEntity.badRequest().body(java.util.Map.of("error", "Invalid file name"));
+	            }
+	            
+	            java.nio.file.Path uploadDir = java.nio.file.Paths.get("aadhar-photos").toAbsolutePath().normalize();
+	            java.nio.file.Path filePath = uploadDir.resolve(fileName).normalize();
+	            
+	            if (!filePath.startsWith(uploadDir)) {
+	                return ResponseEntity.badRequest().body(java.util.Map.of("error", "Unauthorized path"));
+	            }
+	            
+	            java.io.File file = filePath.toFile();
+	            if (file.exists() && file.isFile()) {
+	                if (file.delete()) {
+	                    log.info("Deleted abandoned Aadhaar file: {}", fileName);
+	                    return ResponseEntity.ok(java.util.Map.of("message", "File deleted successfully"));
+	                } else {
+	                    log.error("Failed to delete Aadhaar file: {}", fileName);
+	                    return ResponseEntity.internalServerError().body(java.util.Map.of("error", "Failed to delete file"));
+	                }
+	            }
+	            return ResponseEntity.notFound().build();
+	        } catch (Exception e) {
+	            log.error("Error deleting Aadhaar photo", e);
+	            return ResponseEntity.internalServerError().body(java.util.Map.of("error", "Error occurred during deletion"));
+	        }
+	    }
 }
 
