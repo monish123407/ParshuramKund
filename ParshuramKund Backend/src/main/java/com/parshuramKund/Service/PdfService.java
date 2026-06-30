@@ -38,6 +38,15 @@ public class PdfService {
 		private  ApplicantRepository applicantRepository ;
 
     public byte[] generatePdf(Long id) throws Exception {
+        java.nio.file.Path cacheDir = java.nio.file.Paths.get("generated-passes").toAbsolutePath().normalize();
+        java.nio.file.Path cachedFilePath = cacheDir.resolve("Pass_" + id + ".pdf");
+        
+        if (java.nio.file.Files.exists(cachedFilePath)) {
+            log.info("Returning cached PDF pass for ID: {}", id);
+            return java.nio.file.Files.readAllBytes(cachedFilePath);
+        }
+
+        log.info("Generating PDF pass from database record for ID: {}", id);
     	Optional<Applicant> applicantOptional=applicantRepository.findById(id);
     	if (!applicantOptional.isPresent()) {
             throw new RuntimeException("Applicant not found");
@@ -295,7 +304,19 @@ public class PdfService {
 
         document.close();
 
-        return out.toByteArray();
+        byte[] pdfBytes = out.toByteArray();
+        try {
+            java.io.File dir = cacheDir.toFile();
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            java.nio.file.Files.write(cachedFilePath, pdfBytes);
+            log.info("Cached generated PDF pass for ID: {} to disk", id);
+        } catch (Exception e) {
+            log.error("Failed to cache PDF pass for ID: {}", id, e);
+        }
+
+        return pdfBytes;
     }
 
     private void addDetailCell(PdfPTable table, String label, String value, BaseColor labelBg, BaseColor borderColor, Font labelFont, Font valueFont) {

@@ -103,8 +103,7 @@ export class PdfViewer {
         const fileURL = URL.createObjectURL(blob);
         this.rawPdfUrl = fileURL;
 
-        const directUrl = `http://${window.location.hostname}:8081/api/auth/generate-pdf/${id}`;
-        const finalUrl = `${directUrl}#toolbar=0&navpanes=0&scrollbar=1`;
+        const finalUrl = `${fileURL}#toolbar=0&navpanes=0&scrollbar=1`;
         this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(finalUrl);
 
         this.fetchApplicantDetails(id);

@@ -104,7 +104,36 @@ public class ApplicantServiceimpl implements ApplicantService {
 
 	@Override
 	public void deleteRegistration(Long id) {
-		applicantRepository.deleteById(id);
+		java.util.Optional<Applicant> applicantOptional = applicantRepository.findById(id);
+		if (applicantOptional.isPresent()) {
+			Applicant applicant = applicantOptional.get();
+			
+			// Delete Aadhaar photo upload
+			if (applicant.getAadharPhotoPath() != null && !applicant.getAadharPhotoPath().isEmpty()) {
+				try {
+					java.nio.file.Path aadharPath = java.nio.file.Paths.get("aadhar-photos").resolve(applicant.getAadharPhotoPath()).toAbsolutePath().normalize();
+					java.io.File file = aadharPath.toFile();
+					if (file.exists() && file.isFile()) {
+						file.delete();
+					}
+				} catch (Exception e) {
+					// Ignore deletion failures
+				}
+			}
+			
+			// Delete cached PDF pass
+			try {
+				java.nio.file.Path pdfPath = java.nio.file.Paths.get("generated-passes").resolve("Pass_" + id + ".pdf").toAbsolutePath().normalize();
+				java.io.File file = pdfPath.toFile();
+				if (file.exists() && file.isFile()) {
+					file.delete();
+				}
+			} catch (Exception e) {
+				// Ignore deletion failures
+			}
+			
+			applicantRepository.delete(applicant);
+		}
 	}
 
 	@Override
