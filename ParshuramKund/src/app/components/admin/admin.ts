@@ -30,6 +30,8 @@ export class Admin implements OnInit {
   verificationStatus: 'idle' | 'loading' | 'valid' | 'invalid' = 'idle';
   scannerActive = false;
   scanner: any = null;
+  lastScannedId = '';
+  lastScanTime = 0;
   selectedGender = '';
   selectedVisitDate = '';
   uniqueVisitDates: string[] = [];
@@ -637,40 +639,41 @@ export class Admin implements OnInit {
     }
   }
 
-  verifyPass(queryId: string) {
-    if (!queryId || queryId.trim().length === 0) return;
-    
-    // Clean query: strip non-printable/control characters & trim
+  extractId(queryId: string): string {
+    if (!queryId) return '';
     let searchId = queryId.replace(/[^\x20-\x7E]/g, '').trim();
     
-    // 1. Try to extract 14-18 digit numeric ID (like 2607061857213223)
     const numericIdMatch = searchId.match(/\b(\d{14,18})\b/);
     if (numericIdMatch) {
-      searchId = numericIdMatch[1];
-    } else {
-      // 2. Try to extract UUID (in case of uuid test registrations)
-      const uuidMatch = searchId.match(/\b([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\b/i);
-      if (uuidMatch) {
-        searchId = uuidMatch[1];
-      } else {
-        // 3. Try to extract ID from DTO toString format: "id=12345..."
-        const idParamMatch = searchId.match(/id\s*=\s*([a-zA-Z0-9_-]+)/i);
-        if (idParamMatch) {
-          searchId = idParamMatch[1];
-        } else {
-          // 4. Try to extract ID from plain text template format: "Reg ID: 12345..."
-          const regIdMatch = searchId.match(/Reg ID:\s*([a-zA-Z0-9_-]+)/i);
-          if (regIdMatch) {
-            searchId = regIdMatch[1];
-          }
-        }
-      }
+      return numericIdMatch[1];
     }
     
-    // 5. Strip any leading hash character
+    const uuidMatch = searchId.match(/\b([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\b/i);
+    if (uuidMatch) {
+      return uuidMatch[1];
+    }
+    
+    const idParamMatch = searchId.match(/id\s*=\s*([a-zA-Z0-9_-]+)/i);
+    if (idParamMatch) {
+      return idParamMatch[1];
+    }
+    
+    const regIdMatch = searchId.match(/Reg ID:\s*([a-zA-Z0-9_-]+)/i);
+    if (regIdMatch) {
+      return regIdMatch[1];
+    }
+    
     if (searchId.startsWith('#')) {
       searchId = searchId.substring(1);
     }
+    return searchId;
+  }
+
+  verifyPass(queryId: string) {
+    if (!queryId || queryId.trim().length === 0) return;
+    
+    const searchId = this.extractId(queryId);
+    if (!searchId) return;
 
     this.verificationStatus = 'loading';
     this.verifyResult = null;
@@ -755,6 +758,8 @@ export class Admin implements OnInit {
     this.verifyResult = null;
     this.verifyCoTravellers = [];
     this.verificationStatus = 'idle';
+    this.lastScannedId = '';
+    this.lastScanTime = 0;
     this.cdr.detectChanges();
   }
 
@@ -833,9 +838,20 @@ export class Admin implements OnInit {
   }
 
   handleQrScanSuccess(decodedText: string) {
-    this.stopCameraScanner(); // Stop camera stream on first successful scan
-    this.verifyQuery = decodedText;
-    this.verifyPass(decodedText);
+    const extractedId = this.extractId(decodedText);
+    if (!extractedId) return;
+
+    // Prevent duplicate scans of the same ticket within 5 seconds to protect backend
+    const now = Date.now();
+    if (extractedId === this.lastScannedId && (now - this.lastScanTime) < 5000) {
+      return;
+    }
+
+    this.lastScannedId = extractedId;
+    this.lastScanTime = now;
+
+    this.verifyQuery = extractedId;
+    this.verifyPass(extractedId);
   }
 
   playBeep(success: boolean) {
