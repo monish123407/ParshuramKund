@@ -60,6 +60,12 @@ public class ApplicantController {
 	        if (!request.getEmail().trim().matches(emailRegex)) {
 	            return ResponseEntity.badRequest().body(java.util.Map.of("error", "Invalid email format"));
 	        }
+	        if (request.getPhone() == null || request.getPhone().trim().isEmpty()) {
+	            return ResponseEntity.badRequest().body(java.util.Map.of("error", "Mobile number is required"));
+	        }
+	        if (!request.getPhone().trim().matches("^[0-9]{10}$")) {
+	            return ResponseEntity.badRequest().body(java.util.Map.of("error", "Mobile number must be a valid 10-digit number"));
+	        }
 	        try {
 
 	        	ApplicantDTO response = applicantService.registerUser(request);
@@ -76,7 +82,7 @@ public class ApplicantController {
 
 	    @GetMapping("/generate-pdf/{id}")
 	    public ResponseEntity<?> generatePdf(
-	            @PathVariable Long id,
+	            @PathVariable String id,
 	            @RequestHeader(value = "X-Admin-Role", required = false) String role,
 	            @RequestParam(value = "role", required = false) String roleQuery) {
 	        String finalRole = role != null ? role : roleQuery;
@@ -85,6 +91,11 @@ public class ApplicantController {
 	                    .body(java.util.Map.of("error", "AUDITOR cannot download passes"));
 	        }
 	        try {
+	            ApplicantDTO applicant = applicantService.findById(id);
+	            if (applicant != null && Boolean.TRUE.equals(applicant.getRejected())) {
+	                return ResponseEntity.status(org.springframework.http.HttpStatus.BAD_REQUEST)
+	                        .body(java.util.Map.of("error", "Rejected registration cannot generate pass"));
+	            }
 	            byte[] pdf = pdfService.generatePdf(id);
 	            return ResponseEntity.ok()
 	                    .header(HttpHeaders.CONTENT_DISPOSITION,
@@ -111,7 +122,7 @@ public class ApplicantController {
 
 	    @DeleteMapping("/registrations/{id}")
 	    public ResponseEntity<?> deleteRegistration(
-	            @PathVariable Long id,
+	            @PathVariable String id,
 	            @RequestHeader(value = "X-Admin-Role", required = false) String role) {
 	        if (!"SUPER_ADMIN".equalsIgnoreCase(role)) {
 	            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN)
@@ -128,7 +139,7 @@ public class ApplicantController {
 
 	    @PostMapping("/registrations/{id}/resend-email")
 	    public ResponseEntity<?> resendEmail(
-	            @PathVariable Long id,
+	            @PathVariable String id,
 	            @RequestHeader(value = "X-Admin-Role", required = false) String role) {
 	        if ("AUDITOR".equalsIgnoreCase(role)) {
 	            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN)
@@ -140,11 +151,53 @@ public class ApplicantController {
 	                return ResponseEntity.status(org.springframework.http.HttpStatus.NOT_FOUND)
 	                        .body(java.util.Map.of("error", "Registration not found"));
 	            }
+	            if (Boolean.TRUE.equals(applicant.getRejected())) {
+	                return ResponseEntity.status(org.springframework.http.HttpStatus.BAD_REQUEST)
+	                        .body(java.util.Map.of("error", "Rejected registration cannot resend email"));
+	            }
 	            emailService.sendRegistrationEmail(applicant);
 	            return ResponseEntity.ok(java.util.Map.of("message", "Email queued for dispatch successfully"));
 	        } catch (Exception e) {
 	            log.error("Error resending email for ID {}: ", id, e);
 	            return ResponseEntity.internalServerError().build();
+	        }
+	    }
+
+	    @PostMapping("/registrations/{id}/verify")
+	    public ResponseEntity<?> verifyRegistration(
+	            @PathVariable String id,
+	            @RequestHeader(value = "X-Admin-Role", required = false) String role,
+	            @RequestHeader(value = "X-Admin-Username", required = false) String username) {
+	        if ("AUDITOR".equalsIgnoreCase(role)) {
+	            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN)
+	                    .body(java.util.Map.of("error", "AUDITOR role cannot verify pilgrim passes"));
+	        }
+	        try {
+	            ApplicantDTO updated = applicantService.verifyRegistration(id, username);
+	            return ResponseEntity.ok(updated);
+	        } catch (Exception e) {
+	            log.error("Error verifying registration for ID {}: ", id, e);
+	            return ResponseEntity.status(org.springframework.http.HttpStatus.NOT_FOUND)
+	                    .body(java.util.Map.of("error", e.getMessage()));
+	        }
+	    }
+
+	    @PostMapping("/registrations/{id}/reject")
+	    public ResponseEntity<?> rejectRegistration(
+	            @PathVariable String id,
+	            @RequestHeader(value = "X-Admin-Role", required = false) String role,
+	            @RequestHeader(value = "X-Admin-Username", required = false) String username) {
+	        if ("AUDITOR".equalsIgnoreCase(role)) {
+	            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN)
+	                    .body(java.util.Map.of("error", "AUDITOR role cannot reject pilgrim passes"));
+	        }
+	        try {
+	            ApplicantDTO updated = applicantService.rejectRegistration(id, username);
+	            return ResponseEntity.ok(updated);
+	        } catch (Exception e) {
+	            log.error("Error rejecting registration for ID {}: ", id, e);
+	            return ResponseEntity.status(org.springframework.http.HttpStatus.NOT_FOUND)
+	                    .body(java.util.Map.of("error", e.getMessage()));
 	        }
 	    }
 
@@ -283,7 +336,7 @@ public class ApplicantController {
 	    }
 
 	    @GetMapping("/aadhar-photo/{id}")
-	    public ResponseEntity<org.springframework.core.io.Resource> getAadharPhoto(@PathVariable Long id) {
+	    public ResponseEntity<org.springframework.core.io.Resource> getAadharPhoto(@PathVariable String id) {
 	        try {
 	            ApplicantDTO applicant = applicantService.findById(id);
 	            if (applicant == null || applicant.getAadharPhotoPath() == null || applicant.getAadharPhotoPath().isEmpty()) {

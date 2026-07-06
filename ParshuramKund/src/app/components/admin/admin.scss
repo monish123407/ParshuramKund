@@ -59,7 +59,8 @@
 /* Table styling */
 .table-responsive {
   border-radius: 8px;
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .table th {
@@ -172,3 +173,208 @@
     transform: scale(1) translateY(0);
   }
 }
+
+/* Verification Portal Styling */
+.verification-console {
+  border-radius: 12px;
+  background-color: #ffffff;
+}
+
+.scanner-box {
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.scanner-feed-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #cbd5e1;
+  background-color: #0f172a;
+  position: relative;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.scanner-radar-scan {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to bottom, rgba(59, 130, 246, 0.8), rgba(59, 130, 246, 0));
+  animation: radarScan 2.5s linear infinite;
+  z-index: 10;
+  pointer-events: none;
+}
+
+@keyframes radarScan {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+
+.verify-status-banner {
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  &.status-valid {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 1px solid #bbf7d0;
+    color: #15803d;
+  }
+
+  &.status-pending {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+  }
+
+  &.status-invalid {
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+  }
+}
+
+.status-badge-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 8px;
+}
+
+.passport-layout {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.verification-photo {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background-color: #f1f5f9;
+  object-fit: cover;
+  aspect-ratio: 4/5;
+}
+
+.co-traveller-verify-table {
+  width: 100%;
+  font-size: 12px;
+  
+  th {
+    padding: 6px 10px;
+    font-weight: 600;
+    background-color: #f8fafc;
+    color: #64748b;
+  }
+  
+  td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+}
+
+/* Media Queries for Mobile Responsiveness */
+@media (max-width: 991px) {
+  .details-panel {
+    position: static !important;
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-container {
+    padding: 15px 10px;
+  }
+  
+  header.d-flex {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 16px;
+    
+    .d-flex {
+      width: 100%;
+    }
+    
+    button {
+      width: 100%;
+      height: 44px;
+    }
+  }
+
+  .tab-switcher-container {
+    width: 100% !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    
+    button {
+      flex: 1 1 calc(50% - 8px); // Grid: 2 buttons per row
+      font-size: 12px;
+      padding: 0 6px;
+      height: 38px;
+      line-height: 38px;
+    }
+  }
+
+  // Verification Portal Scanner and Radar
+  .scanner-feed-container {
+    max-width: 100%;
+  }
+
+  // Passport Layout on Mobile
+  .passport-layout {
+    padding: 16px 12px;
+    
+    .row.g-3 {
+      flex-direction: column;
+      align-items: center;
+      
+      .col-4 {
+        width: 120px !important;
+        margin-bottom: 12px;
+      }
+      
+      .col-8 {
+        width: 100% !important;
+        text-align: center;
+        
+        .row.g-2 {
+          justify-content: center;
+        }
+      }
+    }
+    
+    .mt-3.pt-2 {
+      text-align: left;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .tab-switcher-container {
+    button {
+      flex: 1 1 100%; // Stack fully on very small screens
+    }
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin-animation {
+  animation: spin 0.8s linear infinite;
+}
+
+

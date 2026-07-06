@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.parshuramKund.DTO.AdminUserDTO;
 import com.parshuramKund.Entity.AdminUser;
 import com.parshuramKund.Repository.AdminUserRepository;
@@ -14,10 +15,12 @@ public class AdminUserServiceimpl implements AdminUserService {
     @Autowired
     private AdminUserRepository adminUserRepository;
 
+    private static final BCryptPasswordEncoder ENCODER = new BCryptPasswordEncoder();
+
     @Override
     public AdminUserDTO login(String username, String password) {
         return adminUserRepository.findByUsername(username)
-                .filter(user -> user.getPassword().equals(password))
+                .filter(user -> ENCODER.matches(password, user.getPassword()))
                 .map(AdminUserDTO::entityToDTO)
                 .orElse(null);
     }
@@ -36,7 +39,7 @@ public class AdminUserServiceimpl implements AdminUserService {
         }
         AdminUser user = new AdminUser();
         user.setUsername(dto.getUsername());
-        user.setPassword(dto.getPassword()); // Store password directly for local mela development
+        user.setPassword(ENCODER.encode(dto.getPassword())); // Store encrypted password
         user.setFullName(dto.getFullName());
         user.setRole(dto.getRole());
         adminUserRepository.save(user);
@@ -50,7 +53,7 @@ public class AdminUserServiceimpl implements AdminUserService {
         user.setFullName(dto.getFullName());
         user.setRole(dto.getRole());
         if (dto.getPassword() != null && !dto.getPassword().trim().isEmpty()) {
-            user.setPassword(dto.getPassword());
+            user.setPassword(ENCODER.encode(dto.getPassword())); // Update with encrypted password
         }
         adminUserRepository.save(user);
         return AdminUserDTO.entityToDTO(user);

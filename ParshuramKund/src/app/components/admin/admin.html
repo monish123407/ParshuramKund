@@ -45,16 +45,25 @@
   <!-- Dashboard Screen -->
   <div *ngIf="isLoggedIn" class="dashboard-wrapper">
     <!-- Header -->
-    <header class="d-flex justify-content-between align-items-center mb-4 p-3 bg-white shadow-sm rounded">
+    <header class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4 p-3 bg-white shadow-sm rounded">
       <div class="d-flex align-items-center">
         <img src="assets/Parshuramlogo.png" alt="Logo" class="me-2" width="50">
         <div>
-          <h2 class="mb-0 serif-font">Parshuram Kund Portal</h2>
+          <h2 class="mb-0 serif-font" style="font-size: calc(1.3rem + .6vw);">Parshuram Kund Portal</h2>
           <span class="text-muted font-size-sm">District Administration, Lohit</span>
         </div>
       </div>
-      <button mat-raised-button color="warn" (click)="logout()">
-        <mat-icon>logout</mat-icon> Logout
+      <div *ngIf="currentUser" class="d-flex align-items-center bg-light px-3 py-2 rounded border ms-sm-auto w-100 w-sm-auto">
+        <mat-icon class="text-secondary me-2">account_circle</mat-icon>
+        <div class="text-start">
+          <div class="fw-bold text-dark" style="font-size: 13.5px; line-height: 1.2;">{{ currentUser.fullName }}</div>
+          <div class="text-muted text-uppercase" style="letter-spacing: 0.5px; font-weight: 600; font-size: 10px; margin-top: 1px;">
+            {{ currentUser.role?.replace('_', ' ') }}
+          </div>
+        </div>
+      </div>
+      <button *ngIf="currentUser" mat-stroked-button color="warn" (click)="logout()" style="height: 38px; font-size: 13.5px; border-width: 1.5px; min-width: 105px;" class="w-100 w-sm-auto">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px;">logout</mat-icon> Logout
       </button>
     </header>
 
@@ -122,14 +131,17 @@
     </div>
 
     <!-- Segmented Tab Switcher -->
-    <div class="d-flex gap-2 mb-4 bg-light p-2 rounded border" style="width: fit-content;">
-      <button mat-raised-button [color]="activeTab === 'registrations' ? 'primary' : ''" (click)="activeTab = 'registrations'; selectedRegistration = null; selectedInquiry = null;">
+    <div class="d-flex gap-2 mb-4 bg-light p-2 rounded border tab-switcher-container" style="width: fit-content;">
+      <button mat-raised-button [color]="activeTab === 'registrations' ? 'primary' : ''" (click)="switchTab('registrations')">
         <mat-icon class="me-1">people</mat-icon> Registrations
       </button>
-      <button mat-raised-button [color]="activeTab === 'inquiries' ? 'primary' : ''" (click)="activeTab = 'inquiries'; selectedRegistration = null; selectedInquiry = null;">
+      <button mat-raised-button [color]="activeTab === 'inquiries' ? 'primary' : ''" (click)="switchTab('inquiries')">
         <mat-icon class="me-1">question_answer</mat-icon> Pilgrim Inquiries
       </button>
-      <button *ngIf="currentUser?.role === 'SUPER_ADMIN'" mat-raised-button [color]="activeTab === 'members' ? 'primary' : ''" (click)="activeTab = 'members'; selectedRegistration = null; selectedInquiry = null;">
+      <button mat-raised-button [color]="activeTab === 'verify' ? 'primary' : ''" (click)="switchTab('verify')">
+        <mat-icon class="me-1">qr_code_scanner</mat-icon> Verify Entry Pass
+      </button>
+      <button *ngIf="currentUser?.role === 'SUPER_ADMIN'" mat-raised-button [color]="activeTab === 'members' ? 'primary' : ''" (click)="switchTab('members')">
         <mat-icon class="me-1">admin_panel_settings</mat-icon> Admin Members
       </button>
     </div>
@@ -139,11 +151,16 @@
       <div class="col-lg-8">
         <!-- Registrations Card -->
         <mat-card *ngIf="activeTab === 'registrations'" class="p-4 shadow-sm bg-white rounded">
-          <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
             <h3 class="mb-0 serif-font">Registration Database</h3>
-            <button *ngIf="currentUser?.role !== 'AUDITOR'" mat-raised-button color="accent" (click)="exportToCSV()">
-              <mat-icon>download</mat-icon> Export CSV
-            </button>
+            <div class="d-flex gap-2 w-100 w-sm-auto justify-content-start justify-content-sm-end">
+              <button mat-raised-button color="primary" (click)="refreshDatabase()" class="flex-fill flex-sm-grow-0">
+                <mat-icon [class.spin-animation]="isRefreshing">refresh</mat-icon> Refresh
+              </button>
+              <button *ngIf="currentUser?.role !== 'AUDITOR'" mat-raised-button color="accent" (click)="exportToCSV()" class="flex-fill flex-sm-grow-0">
+                <mat-icon>download</mat-icon> Export CSV
+              </button>
+            </div>
           </div>
 
           <!-- Controls Grid -->
@@ -193,12 +210,14 @@
                   <th>Name</th>
                   <th>Mobile</th>
                   <th>Visit Date</th>
+                  <th>Status</th>
+                  <th>Verified By</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let reg of pagedRegistrations">
-                  <td class="fw-bold text-muted">#{{ reg.id }}</td>
+                  <td class="fw-bold text-muted">{{ reg.id }}</td>
                   <td>
                     <div class="fw-bold">{{ reg.fullName }}</div>
                     <span class="text-muted font-size-xs">{{ reg.email }}</span>
@@ -208,14 +227,35 @@
                     <span class="badge bg-light text-dark border">{{ reg.holyDipDate }}</span>
                   </td>
                   <td>
+                    <span class="badge rounded-pill d-inline-flex align-items-center gap-1" 
+                          [ngClass]="reg?.rejected ? 'bg-danger-subtle text-danger border border-danger-subtle' : (reg?.verified ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-light text-muted border')">
+                      <span class="status-dot" [style.background-color]="reg?.rejected ? '#dc3545' : (reg?.verified ? '#198754' : '#6c757d')" 
+                            style="width: 6px; height: 6px; border-radius: 50%; display: inline-block;"></span>
+                      {{ reg?.rejected ? 'Rejected' : (reg?.verified ? 'Verified' : 'Registered') }}
+                    </span>
+                  </td>
+                  <td>
+                    <div *ngIf="reg.verified">
+                      <div class="fw-semibold text-dark" style="font-size: 13px;">{{ reg.verifiedBy || 'System' }}</div>
+                      <div class="text-muted font-monospace" style="font-size: 10px;">{{ reg.verifiedAt }}</div>
+                    </div>
+                    <div *ngIf="reg.rejected">
+                      <div class="fw-semibold text-danger" style="font-size: 13px;">Rejected: {{ reg.verifiedBy || 'System' }}</div>
+                      <div class="text-muted font-monospace" style="font-size: 10px;">{{ reg.verifiedAt }}</div>
+                    </div>
+                    <div *ngIf="!reg.verified && !reg.rejected">
+                      <span class="text-muted font-monospace" style="font-size: 11px;">-</span>
+                    </div>
+                  </td>
+                  <td>
                     <div class="btn-group">
                       <button mat-icon-button color="primary" matTooltip="View Details" (click)="viewDetails(reg)">
                         <mat-icon>visibility</mat-icon>
                       </button>
-                      <button *ngIf="currentUser?.role !== 'AUDITOR'" mat-icon-button color="accent" matTooltip="Download Pass" (click)="downloadPass(reg.id)">
+                      <button *ngIf="currentUser?.role !== 'AUDITOR'" mat-icon-button color="accent" matTooltip="Download Pass" (click)="downloadPass(reg.id)" [disabled]="reg?.rejected">
                         <mat-icon>picture_as_pdf</mat-icon>
                       </button>
-                      <button *ngIf="currentUser?.role !== 'AUDITOR'" mat-icon-button color="primary" matTooltip="Resend Pass Email" (click)="resendEmail(reg.id)">
+                      <button *ngIf="currentUser?.role !== 'AUDITOR'" mat-icon-button color="primary" matTooltip="Resend Pass Email" (click)="resendEmail(reg.id)" [disabled]="reg?.rejected">
                         <mat-icon>mail</mat-icon>
                       </button>
                       <button *ngIf="currentUser?.role === 'SUPER_ADMIN'" mat-icon-button color="warn" matTooltip="Cancel Booking" (click)="deleteBooking(reg.id)">
@@ -225,7 +265,7 @@
                   </td>
                 </tr>
                 <tr *ngIf="filteredRegistrations.length === 0">
-                  <td colspan="5" class="text-center py-4 text-muted">No registrations found matching search criteria.</td>
+                  <td colspan="7" class="text-center py-4 text-muted">No registrations found matching search criteria.</td>
                 </tr>
               </tbody>
             </table>
@@ -363,6 +403,65 @@
             </table>
           </div>
         </mat-card>
+
+        <!-- Entry Pass Verification Scanner Card -->
+        <mat-card *ngIf="activeTab === 'verify'" class="p-4 shadow-sm bg-white rounded verification-console">
+          <div class="mb-4">
+            <h3 class="mb-1 serif-font">Gate Pass Scanner</h3>
+            <p class="text-muted small">Verify pilgrim entry tickets in real-time via USB handheld scanners or live camera feed.</p>
+          </div>
+
+          <div class="scanner-box text-center">
+            <!-- Manual / USB Gun input -->
+            <mat-form-field appearance="outline" class="w-100 mb-3">
+              <mat-label>Scan Barcode/QR or Type Registration ID</mat-label>
+              <input matInput [(ngModel)]="verifyQuery" (input)="onVerifyInputChange()" (keyup.enter)="verifyPass(verifyQuery)" placeholder="Focus here and scan/type ID...">
+              <mat-icon matPrefix>search</mat-icon>
+              <button mat-icon-button matSuffix (click)="verifyPass(verifyQuery)" [disabled]="!verifyQuery">
+                <mat-icon>check_circle</mat-icon>
+              </button>
+            </mat-form-field>
+
+            <!-- Insecure context warning -->
+            <!-- <div *ngIf="!isSecureContext" class="alert alert-warning p-3 mb-3 rounded border text-start d-flex align-items-start gap-2" style="background-color: #fffbeb; border-color: #fef3c7; color: #b45309; font-size: 12px; line-height: 1.5;">
+              <mat-icon style="font-size: 20px; width: 20px; height: 20px; color: #d97706; margin-top: 1px;">info</mat-icon>
+              <div>
+                <strong>Insecure Context:</strong> Real-time camera streams are blocked by mobile browsers over plain HTTP. Please use the <strong>"Capture Barcode Photo"</strong> button to take a photo of the barcode using your device camera, or connect using HTTPS/localhost.
+              </div>
+            </div> -->
+
+            <!-- Camera Toggle & File Upload Controls -->
+            <div class="mb-3 d-flex flex-wrap justify-content-center gap-2">
+              <button mat-raised-button color="primary" *ngIf="!scannerActive" [disabled]="!isSecureContext" (click)="startCameraScanner()">
+                <mat-icon>videocam</mat-icon> Live Camera Scanner
+              </button>
+              <button mat-raised-button color="warn" *ngIf="scannerActive" (click)="stopCameraScanner()">
+                <mat-icon>videocam_off</mat-icon> Stop Camera
+              </button>
+              
+              <!-- Native Camera Capture input trigger -->
+              <input type="file" id="barcodePhotoCapture" accept="image/*" capture="environment" style="display: none;" (change)="onBarcodeFileSelected($event)">
+              <label for="barcodePhotoCapture" class="mat-mdc-raised-button mdc-button mat-primary mat-mdc-button-base" style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background-color: #0284c7; color: white; padding: 0 16px; border-radius: 4px; font-weight: 500; font-size: 14px; height: 36.5px; line-height: 36.5px; box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12); text-transform: none;">
+                <mat-icon style="font-size: 20px; width: 20px; height: 20px; margin-right: 2px;">photo_camera</mat-icon> Capture QR Photo
+              </label>
+
+              <button mat-button color="primary" [disabled]="verificationStatus === 'idle'" (click)="resetVerificationConsole()">
+                <mat-icon>clear_all</mat-icon> Reset Scanner
+              </button>
+            </div>
+
+            <!-- Live Camera Feed view -->
+            <div *ngIf="scannerActive" class="scanner-feed-container mb-3">
+              <div class="scanner-radar-scan"></div>
+              <div id="qr-reader" style="width: 100%; border: none;"></div>
+            </div>
+            
+            <div class="d-flex align-items-center justify-content-center text-muted gap-2 py-2 bg-light rounded border mt-3" style="font-size: 13px;">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px;">keyboard</mat-icon>
+              <span>Bar code scanner gun keyboard emulator mode is fully active.</span>
+            </div>
+          </div>
+        </mat-card>
       </div>
 
       <!-- Details sidebar -->
@@ -380,7 +479,7 @@
             <div class="detail-block mb-3">
               <label class="text-muted font-size-xs uppercase fw-bold">Applicant Info</label>
               <h4 class="mb-1">{{ selectedRegistration.fullName }}</h4>
-              <p class="mb-0 text-muted font-size-sm">ID: #{{ selectedRegistration.id }} | Age: {{ selectedRegistration.age }} | Gender: {{ selectedRegistration.gender }}</p>
+              <p class="mb-0 text-muted font-size-sm">ID: {{ selectedRegistration.id }} | Age: {{ selectedRegistration.age }} | Gender: {{ selectedRegistration.gender }}</p>
             </div>
 
             <div class="detail-block mb-3">
@@ -390,7 +489,7 @@
             </div>
 
             <div class="detail-block mb-3" *ngIf="selectedRegistration.aadharNumber">
-              <label class="text-muted font-size-xs uppercase fw-bold">Aadhaar Card (UIDAI Compliant)</label>
+              <label class="text-muted font-size-xs uppercase fw-bold">Aadhaar Card</label>
               <p class="mb-1"><strong>Aadhaar No:</strong> {{ selectedRegistration.aadharNumber }}</p>
               <div *ngIf="selectedRegistration.aadharPhotoPath" class="mt-2">
                 <a [href]="getAadharPhotoUrl(selectedRegistration.id)" target="_blank" mat-raised-button color="primary" class="d-inline-flex align-items-center gap-1 btn-sm" style="font-size: 12.5px; height: 32px; padding: 0 12px; line-height: 32px; text-decoration: none;">
@@ -446,7 +545,7 @@
             </div>
 
             <div class="detail-block mt-4" *ngIf="currentUser?.role !== 'AUDITOR'">
-              <button mat-raised-button color="primary" class="w-100" (click)="resendEmail(selectedRegistration.id)">
+              <button mat-raised-button color="primary" class="w-100" (click)="resendEmail(selectedRegistration.id)" [disabled]="selectedRegistration?.rejected">
                 <mat-icon>mail</mat-icon> Resend Pass Email
               </button>
             </div>
@@ -532,7 +631,7 @@
               <mat-select name="newRole" [(ngModel)]="newMember.role" required>
                 <mat-option value="SUPER_ADMIN">Super Admin</mat-option>
                 <mat-option value="MELA_OPERATOR">Mela Operator</mat-option>
-                <mat-option value="AUDITOR">Auditor</mat-option>
+                <mat-option value="DC">DC</mat-option>
               </mat-select>
             </mat-form-field>
 
@@ -541,6 +640,159 @@
             </button>
           </form>
         </mat-card>
+
+        <!-- Pass Verification Result Panel -->
+        <div *ngIf="activeTab === 'verify'" class="h-100">
+          <!-- IDLE STATE -->
+          <mat-card *ngIf="verificationStatus === 'idle'" class="p-4 shadow-sm bg-white rounded text-center border-dashed py-5 text-muted h-100 d-flex flex-column align-items-center justify-content-center">
+            <mat-icon style="font-size: 64px; width: 64px; height: 64px; opacity: 0.3;" class="mb-3">qr_code_2</mat-icon>
+            <h4 class="fw-bold text-dark">Awaiting Entry Ticket</h4>
+            <p class="small mb-0">Focus input console or start camera feed to verify a pilgrim entry pass.</p>
+          </mat-card>
+
+          <!-- LOADING STATE -->
+          <mat-card *ngIf="verificationStatus === 'loading'" class="p-4 shadow-sm bg-white rounded text-center py-5 h-100 d-flex flex-column align-items-center justify-content-center">
+            <mat-spinner diameter="50" class="mb-3 mx-auto"></mat-spinner>
+            <h4 class="fw-bold">Checking Database...</h4>
+            <p class="text-muted small mb-0">Querying live registration records.</p>
+          </mat-card>
+
+          <!-- VALID PASS STATE -->
+          <div *ngIf="verificationStatus === 'valid' && verifyResult" class="h-100">
+            <!-- Glow alert banner -->
+             <div class="verify-status-banner" [ngClass]="verifyResult?.rejected ? 'status-invalid' : (verifyResult?.verified ? 'status-valid' : 'status-pending')">
+               <mat-icon class="status-badge-icon">{{ verifyResult?.rejected ? 'block' : (verifyResult?.verified ? 'check_circle' : 'verified_user') }}</mat-icon>
+               <h2 class="mb-1 fw-bold tracking-wide">{{ verifyResult?.rejected ? 'REJECTED PASS' : (verifyResult?.verified ? 'VERIFIED PASS' : 'VERIFY PASS') }}</h2>
+               <span class="small font-monospace fw-bold">{{ verifyResult?.id }}</span>
+             </div>
+
+            <!-- Pass details in passport layout -->
+            <mat-card class="p-3 shadow-sm bg-white rounded passport-layout">
+              <div class="row g-3">
+                <div class="col-4">
+                  <!-- Photo ID -->
+                  <div *ngIf="verifyResult?.aadharPhotoPath; else noPhoto">
+                    <!-- PDF Document Preview link -->
+                    <div *ngIf="verifyResult.aadharPhotoPath.toLowerCase().endsWith('.pdf'); else showImg" class="text-center">
+                      <a [href]="'/api/auth/aadhar-photo/' + verifyResult.id" target="_blank" class="d-flex flex-column align-items-center justify-content-center p-2 border rounded bg-light text-decoration-none text-danger" style="height: 120px; font-size: 11px;">
+                        <mat-icon style="font-size: 36px; width: 36px; height: 36px; color: #dc3545;" class="mb-1">picture_as_pdf</mat-icon>
+                        <span class="fw-semibold">View Aadhaar PDF</span>
+                      </a>
+                    </div>
+                    <!-- Image Preview -->
+                    <ng-template #showImg>
+                      <img [src]="'/api/auth/aadhar-photo/' + verifyResult.id" class="verification-photo img-fluid" alt="Aadhaar Photo">
+                    </ng-template>
+                  </div>
+                  <ng-template #noPhoto>
+                    <div class="verification-photo d-flex align-items-center justify-content-center text-muted text-center" style="font-size: 10px; padding: 4px; height: 120px;">
+                      No Document Uploaded
+                    </div>
+                  </ng-template>
+                </div>
+                <div class="col-8">
+                  <div class="mb-2">
+                    <label class="text-muted uppercase fw-bold" style="font-size: 9px; letter-spacing: 0.5px;">Pilgrim Name</label>
+                    <h4 class="mb-0 text-dark fw-bold" style="font-size: 15px;">{{ verifyResult.fullName }}</h4>
+                  </div>
+                  <div class="row g-2 mb-2">
+                    <div class="col-6">
+                      <label class="text-muted uppercase fw-bold" style="font-size: 9px;">Age / Gender</label>
+                      <div class="fw-semibold text-dark" style="font-size: 12px;">{{ verifyResult.age }} / {{ verifyResult.gender }}</div>
+                    </div>
+                    <div class="col-6">
+                      <label class="text-muted uppercase fw-bold" style="font-size: 9px;">Holy Dip Date</label>
+                      <div class="fw-semibold text-dark" style="font-size: 12px;">{{ verifyResult.dateOfHoliDipDate || verifyResult.holyDipDate }}</div>
+                    </div>
+                  </div>
+                  <div class="mb-2">
+                    <label class="text-muted uppercase fw-bold" style="font-size: 9px;">Contact Phone</label>
+                    <div class="fw-semibold text-dark" style="font-size: 12px;">{{ verifyResult.phone }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Address details -->
+              <div class="mt-3 pt-2 border-top">
+                <label class="text-muted uppercase fw-bold d-block" style="font-size: 9px; margin-bottom: 2px;">Residence Address</label>
+                <p class="text-dark mb-0" style="font-size: 11px; line-height: 1.4;">
+                  {{ verifyResult.presentAddress }}, {{ verifyResult.presentDistrict }}, {{ verifyResult.presentState }} - {{ verifyResult.presentPinCode }}
+                </p>
+              </div>
+
+              <!-- Co-applicants -->
+              <div class="mt-3 pt-2 border-top" *ngIf="verifyCoTravellers.length > 0">
+                <label class="text-muted uppercase fw-bold d-block mb-1" style="font-size: 9px;">Co-Travellers Group ({{ verifyCoTravellers.length }})</label>
+                <div class="table-responsive" style="max-height: 120px; overflow-y: auto;">
+                  <table class="table table-bordered co-traveller-verify-table mb-0">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Age / Gender</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let co of verifyCoTravellers">
+                        <td class="fw-bold">{{ co.name }}</td>
+                        <td>{{ co.age }} / {{ co.gender }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Verification Action / Status -->
+              <div class="mt-3 pt-3 border-top">
+                 <div *ngIf="verifyResult?.verified" class="d-flex align-items-center justify-content-center gap-2 p-2 bg-success-subtle text-success border border-success rounded fw-bold text-uppercase" style="font-size: 13px;">
+                   <mat-icon style="font-size: 20px; width: 20px; height: 20px;">check_circle</mat-icon>
+                   <span>Admission Verified & Logged</span>
+                 </div>
+
+                 <div *ngIf="verifyResult?.rejected" class="d-flex align-items-center justify-content-center gap-2 p-2 bg-danger-subtle text-danger border border-danger rounded fw-bold text-uppercase" style="font-size: 13px;">
+                   <mat-icon style="font-size: 20px; width: 20px; height: 20px;">block</mat-icon>
+                   <span>Admission Rejected</span>
+                 </div>
+                 
+                 <div *ngIf="!verifyResult?.verified && !verifyResult?.rejected" class="d-flex flex-column gap-2">
+                   <div class="d-flex gap-2">
+                     <button mat-raised-button color="primary" class="flex-grow-1 py-2 d-flex align-items-center justify-content-center gap-2" 
+                             [disabled]="currentUser?.role === 'AUDITOR'"
+                             (click)="verifyPassTicket(verifyResult.id)">
+                       <mat-icon>verified_user</mat-icon>
+                       <span>Verify Pilgrim Entry</span>
+                     </button>
+                     </div>
+                     <div class="d-flex gap-2">
+                     <button mat-raised-button color="warn" class="flex-grow-1 py-2 d-flex align-items-center justify-content-center gap-2" 
+                             [disabled]="currentUser?.role === 'AUDITOR'"
+                             (click)="rejectPassTicket(verifyResult.id)">
+                       <mat-icon>block</mat-icon>
+                       <span>Reject Pilgrim Entry</span>
+                     </button>
+                   </div>
+                   <div *ngIf="currentUser?.role === 'AUDITOR'" class="text-center text-muted small p-2 bg-light rounded border mt-1">
+                     Auditors cannot verify or reject pilgrim passes.
+                   </div>
+                 </div>
+              </div>
+            </mat-card>
+          </div>
+
+          <!-- INVALID PASS STATE -->
+          <div *ngIf="verificationStatus === 'invalid'" class="h-100">
+            <div class="verify-status-banner status-invalid">
+              <mat-icon class="status-badge-icon">error</mat-icon>
+              <h2 class="mb-1 fw-bold tracking-wide">INVALID PASS</h2>
+              <span class="small font-monospace fw-bold">ID NOT FOUND</span>
+            </div>
+
+            <mat-card class="p-4 shadow-sm bg-white rounded text-center text-muted">
+              <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #dc3545; opacity: 0.8;" class="mb-3">warning</mat-icon>
+              <h4 class="fw-bold text-dark mb-2">Access Blocked</h4>
+              <p class="small mb-0">The registration number entered was not found in the official records. Please check the ticket number or ask the pilgrim to visit the helpdesk registration center.</p>
+            </mat-card>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -9,8 +9,10 @@ public interface ApplicantService {
 	public ApplicantDTO registerUser(ApplicantDTO applicantDTO);
 	public List<ApplicantDTO> findByPhone(String mobile);
 	public List<ApplicantDTO> findAllRegistrations();
-	public void deleteRegistration(Long id);
+	public void deleteRegistration(String id);
 	public List<ApplicantDTO> search(String query);
-	public ApplicantDTO findById(Long id);
+	public ApplicantDTO findById(String id);
+	public ApplicantDTO verifyRegistration(String id, String verifiedBy);
+	public ApplicantDTO rejectRegistration(String id, String rejectedBy);
 
 }

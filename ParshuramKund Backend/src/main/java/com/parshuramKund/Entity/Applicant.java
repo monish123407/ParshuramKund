@@ -15,8 +15,7 @@ import jakarta.persistence.Table;
 public class Applicant {
 
 	 	@Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    private Long id;
+	    private String id;
 
 	    @Column(nullable = false)
 	    private String fullName;
@@ -77,6 +76,48 @@ public class Applicant {
 	    
 	    private String aadharPhotoPath;
 
+	    @Column(nullable = false)
+	    private Boolean verified = false;
+
+	    @Column(nullable = false)
+	    private Boolean rejected = false;
+
+		public Boolean getVerified() {
+			return verified;
+		}
+
+		public void setVerified(Boolean verified) {
+			this.verified = verified;
+		}
+
+		public Boolean getRejected() {
+			return rejected;
+		}
+
+		public void setRejected(Boolean rejected) {
+			this.rejected = rejected;
+		}
+
+	    private String verifiedBy;
+
+	    private String verifiedAt;
+
+		public String getVerifiedBy() {
+			return verifiedBy;
+		}
+
+		public void setVerifiedBy(String verifiedBy) {
+			this.verifiedBy = verifiedBy;
+		}
+
+		public String getVerifiedAt() {
+			return verifiedAt;
+		}
+
+		public void setVerifiedAt(String verifiedAt) {
+			this.verifiedAt = verifiedAt;
+		}
+
 		public String getAadharNumber() {
 			return aadharNumber;
 		}
@@ -120,11 +161,11 @@ public class Applicant {
 			this.bookingDate = bookingDate;
 		}
 
-		public Long getId() {
+		public String getId() {
 			return id;
 		}
 
-		public void setId(Long id) {
+		public void setId(String id) {
 			this.id = id;
 		}
 

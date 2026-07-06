@@ -37,16 +37,7 @@ public class PdfService {
 	 @Autowired
 		private  ApplicantRepository applicantRepository ;
 
-    public byte[] generatePdf(Long id) throws Exception {
-        java.nio.file.Path cacheDir = java.nio.file.Paths.get("generated-passes").toAbsolutePath().normalize();
-        java.nio.file.Path cachedFilePath = cacheDir.resolve("Pass_" + id + ".pdf");
-        
-        if (java.nio.file.Files.exists(cachedFilePath)) {
-            log.info("Returning cached PDF pass for ID: {}", id);
-            return java.nio.file.Files.readAllBytes(cachedFilePath);
-        }
-
-        log.info("Generating PDF pass from database record for ID: {}", id);
+    public byte[] generatePdf(String id) throws Exception {
     	Optional<Applicant> applicantOptional=applicantRepository.findById(id);
     	if (!applicantOptional.isPresent()) {
             throw new RuntimeException("Applicant not found");
@@ -139,14 +130,17 @@ public class PdfService {
         }
 
         // Add details to table
-        addDetailCell(detailsTable, "Registration ID:", "#" + applicant.getId(), labelBg, borderColor, labelFont, valueFont);
+        addDetailCell(detailsTable, "Registration ID:", applicant.getId(), labelBg, borderColor, labelFont, valueFont);
         addDetailCell(detailsTable, "Booking Date:", applicant.getBookingDate(), labelBg, borderColor, labelFont, valueFont);
         
         addDetailCell(detailsTable, "Pilgrim Name:", applicant.getFullName(), labelBg, borderColor, labelFont, valueFont);
         addDetailCell(detailsTable, "Age / Gender:", applicant.getAge() + " / " + applicant.getGender(), labelBg, borderColor, labelFont, valueFont);
         
         addDetailCell(detailsTable, "Holy Dip Date:", applicant.getDateOfHoliDipDate(), labelBg, borderColor, labelFont, valueFont);
+        addDetailCell(detailsTable, "Contact Phone:", applicant.getPhone(), labelBg, borderColor, labelFont, valueFont);
+        
         addDetailCell(detailsTable, "Aadhaar Number:", maskedAadhar, labelBg, borderColor, labelFont, valueFont);
+        addDetailCell(detailsTable, "Email Address:", applicant.getEmail() != null ? applicant.getEmail() : "Not Provided", labelBg, borderColor, labelFont, valueFont);
 
         // Present Address
         String presentAddressStr = applicant.getPresentAddress() + " , " + applicant.getPresentDistrict() + " , " + applicant.getPresentState() + " - " + applicant.getPresentPinCode();
@@ -257,24 +251,24 @@ public class PdfService {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(
             qrCodeWriter.encode(
-                applicantDTO.EntityToDTO(applicant).toString(),
+                applicant.getId(),
                 BarcodeFormat.QR_CODE,
-                160,
-                160
+                200,
+                200
             )
         );
 
         ByteArrayOutputStream qrBaos = new ByteArrayOutputStream();
         ImageIO.write(qrImage, "png", qrBaos);
         Image qr = Image.getInstance(qrBaos.toByteArray());
-        qr.scaleToFit(110, 110);
+        qr.scaleToFit(150, 150);
         qr.setAlignment(Element.ALIGN_CENTER);
 
         PdfPCell rightCell = new PdfPCell();
         rightCell.setBorder(Rectangle.BOX);
         rightCell.setBorderColor(borderColor);
         rightCell.setBackgroundColor(new BaseColor(250, 250, 250));
-        rightCell.setPadding(8);
+        rightCell.setPadding(4);
         rightCell.setHorizontalAlignment(Element.ALIGN_CENTER);
         
         rightCell.addElement(qr);
@@ -304,19 +298,7 @@ public class PdfService {
 
         document.close();
 
-        byte[] pdfBytes = out.toByteArray();
-        try {
-            java.io.File dir = cacheDir.toFile();
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-            java.nio.file.Files.write(cachedFilePath, pdfBytes);
-            log.info("Cached generated PDF pass for ID: {} to disk", id);
-        } catch (Exception e) {
-            log.error("Failed to cache PDF pass for ID: {}", id, e);
-        }
-
-        return pdfBytes;
+        return out.toByteArray();
     }
 
     private void addDetailCell(PdfPTable table, String label, String value, BaseColor labelBg, BaseColor borderColor, Font labelFont, Font valueFont) {

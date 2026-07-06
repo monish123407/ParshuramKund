@@ -20,13 +20,22 @@ export class Admin implements OnInit {
   registrations: any[] = [];
   inquiries: any[] = [];
   members: any[] = [];
-  activeTab: 'registrations' | 'inquiries' | 'members' = 'registrations';
+  activeTab: 'registrations' | 'inquiries' | 'members' | 'verify' = 'registrations';
   searchQuery = '';
+  
+  // Verification Portal Properties
+  verifyQuery = '';
+  verifyResult: any = null;
+  verifyCoTravellers: any[] = [];
+  verificationStatus: 'idle' | 'loading' | 'valid' | 'invalid' = 'idle';
+  scannerActive = false;
+  scanner: any = null;
   selectedGender = '';
   selectedVisitDate = '';
   uniqueVisitDates: string[] = [];
   
   loading = false;
+  isRefreshing = false;
   selectedRegistration: any = null;
   selectedInquiry: any = null;
   showDisposalModal = false;
@@ -52,6 +61,7 @@ export class Admin implements OnInit {
 
   userEnteredCaptcha = '';
   captchaCode = '';
+  isSecureContext = true;
 
   constructor(
     private applicantService: ApplicantService,
@@ -60,6 +70,9 @@ export class Admin implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    if (typeof window !== 'undefined') {
+      this.isSecureContext = window.isSecureContext === true;
+    }
     // Check if session was already logged in
     if (typeof window !== 'undefined' && window.sessionStorage) {
       const auth = sessionStorage.getItem('admin_auth');
@@ -165,6 +178,7 @@ export class Admin implements OnInit {
   }
 
   logout() {
+    this.stopCameraScanner();
     this.isLoggedIn = false;
     this.currentUser = null;
     this.members = [];
@@ -196,6 +210,7 @@ export class Admin implements OnInit {
               this.loadMembers();
             } else {
               this.loading = false;
+              this.isRefreshing = false;
               this.cdr.detectChanges();
             }
           },
@@ -207,6 +222,7 @@ export class Admin implements OnInit {
               this.loadMembers();
             } else {
               this.loading = false;
+              this.isRefreshing = false;
               this.cdr.detectChanges();
             }
           }
@@ -214,11 +230,19 @@ export class Admin implements OnInit {
       },
       error: (err) => {
         this.loading = false;
+        this.isRefreshing = false;
         this.cdr.detectChanges();
         this.snackBar.open('Error loading registrations from backend', 'Close', { duration: 3000 });
         console.error('Load registrations error: ', err);
       }
     });
+  }
+
+  refreshDatabase() {
+    this.isRefreshing = true;
+    this.cdr.detectChanges();
+    this.loadData();
+    this.snackBar.open('Refreshing database...', 'Close', { duration: 1000 });
   }
 
   extractUniqueDates() {
@@ -306,6 +330,14 @@ export class Admin implements OnInit {
 
   viewDetails(reg: any) {
     this.selectedRegistration = reg;
+    if (typeof window !== 'undefined' && window.innerWidth < 992) {
+      setTimeout(() => {
+        const element = document.querySelector('.details-panel');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
   }
 
   closeDetails() {
@@ -324,12 +356,14 @@ export class Admin implements OnInit {
 
   downloadPass(id: number) {
     const role = this.currentUser?.role || '';
-    window.open(`http://${window.location.hostname}:8081/api/auth/generate-pdf/${id}?role=${role}`, '_blank');
+    if (typeof window !== 'undefined') {
+      window.open(`${window.location.origin}/api/auth/generate-pdf/${id}?role=${role}`, '_blank');
+    }
   }
 
   getAadharPhotoUrl(id: any): string {
     if (typeof window !== 'undefined') {
-      return `http://${window.location.hostname}:8081/api/auth/aadhar-photo/${id}`;
+      return `${window.location.origin}/api/auth/aadhar-photo/${id}`;
     }
     return `http://localhost:8081/api/auth/aadhar-photo/${id}`;
   }
@@ -364,7 +398,7 @@ export class Admin implements OnInit {
   }
 
   exportToCSV() {
-    const data = this.filteredRegistrations;
+    const data = this.registrations;
     if (data.length === 0) {
       this.snackBar.open('No data available to export', 'Close', { duration: 3000 });
       return;
@@ -390,7 +424,11 @@ export class Admin implements OnInit {
       'Permanent District',
       'Permanent Pin Code',
       'Is Co-Applicant Present',
-      'Co-Applicants Data'
+      'Co-Applicants Data',
+      'Verified',
+      'Rejected',
+      'Verified/Rejected By',
+      'Verified/Rejected At'
     ];
     const escapeCSV = (val: any) => {
       if (val === undefined || val === null) return '""';
@@ -418,7 +456,11 @@ export class Admin implements OnInit {
       escapeCSV(r.permanentDistrict),
       escapeCSV(r.permanentPinCode),
       (r.isPresentCoApplicant === true || r.isPresentCoApplicant === 'true') ? 'Yes' : 'No',
-      escapeCSV(r.coApplicant)
+      escapeCSV(r.coApplicant),
+      r.verified ? 'Yes' : 'No',
+      r.rejected ? 'Yes' : 'No',
+      escapeCSV(r.verifiedBy),
+      escapeCSV(r.verifiedAt)
     ]);
     const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -444,6 +486,14 @@ export class Admin implements OnInit {
 
   viewInquiryDetails(inq: any) {
     this.selectedInquiry = inq;
+    if (typeof window !== 'undefined' && window.innerWidth < 992) {
+      setTimeout(() => {
+        const element = document.querySelector('.details-panel');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
   }
 
   closeInquiryDetails() {
@@ -495,10 +545,12 @@ export class Admin implements OnInit {
       next: (res) => {
         this.members = res;
         this.loading = false;
+        this.isRefreshing = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
         this.loading = false;
+        this.isRefreshing = false;
         this.cdr.detectChanges();
         console.error('Error loading members:', err);
       }
@@ -567,6 +619,350 @@ export class Admin implements OnInit {
           this.snackBar.open('Failed to delete member', 'Close', { duration: 3000 });
         }
       });
+    }
+  }
+
+  // Verification Portal Methods
+  switchTab(tab: 'registrations' | 'inquiries' | 'members' | 'verify') {
+    this.activeTab = tab;
+    this.selectedRegistration = null;
+    this.selectedInquiry = null;
+    this.stopCameraScanner();
+    
+    if (tab !== 'verify') {
+      this.verifyQuery = '';
+      this.verifyResult = null;
+      this.verifyCoTravellers = [];
+      this.verificationStatus = 'idle';
+    }
+  }
+
+  verifyPass(queryId: string) {
+    if (!queryId || queryId.trim().length === 0) return;
+    
+    let searchId = queryId.trim();
+    
+    // 1. Try to extract ID from DTO toString format: "id=12345..."
+    const idParamMatch = searchId.match(/id\s*=\s*([a-zA-Z0-9_-]+)/i);
+    if (idParamMatch) {
+      searchId = idParamMatch[1];
+    } else {
+      // 2. Try to extract ID from plain text template format: "Reg ID: 12345..."
+      const regIdMatch = searchId.match(/Reg ID:\s*([a-zA-Z0-9_-]+)/i);
+      if (regIdMatch) {
+        searchId = regIdMatch[1];
+      }
+    }
+    
+    // 3. Strip any leading hash character
+    if (searchId.startsWith('#')) {
+      searchId = searchId.substring(1);
+    }
+
+    this.verificationStatus = 'loading';
+    this.verifyResult = null;
+    this.verifyCoTravellers = [];
+    this.cdr.detectChanges();
+
+    this.applicantService.search(searchId).subscribe({
+      next: (results) => {
+        if (results && results.length > 0) {
+          this.verifyResult = results[0];
+          this.verificationStatus = 'valid';
+          if (this.verifyResult.coTraveller) {
+            try {
+              this.verifyCoTravellers = JSON.parse(this.verifyResult.coTraveller);
+            } catch (e) {
+              this.verifyCoTravellers = [];
+            }
+          }
+          this.playBeep(true);
+          this.verifyQuery = ''; // Clear search bar input text on successful load
+        } else {
+          this.verificationStatus = 'invalid';
+          this.playBeep(false);
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error verifying pass:', err);
+        this.verificationStatus = 'invalid';
+        this.playBeep(false);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  verifyPassTicket(id: string) {
+    if (!id) return;
+    this.applicantService.verifyRegistration(id).subscribe({
+      next: (res) => {
+        this.verifyResult = res;
+        this.snackBar.open('Registration checked in and verified successfully!', 'Close', { duration: 3000 });
+        this.loadData(); // Reload registrations table
+        this.cdr.detectChanges();
+        
+        // Auto-reset verification console back to idle after 3 seconds
+        setTimeout(() => {
+          if (this.verificationStatus === 'valid' && this.verifyResult && this.verifyResult.id === id) {
+            this.resetVerificationConsole();
+          }
+        }, 3000);
+      },
+      error: (err) => {
+        this.snackBar.open(err.error?.error || 'Failed to verify pass in database', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  rejectPassTicket(id: string) {
+    if (!id) return;
+    this.applicantService.rejectRegistration(id).subscribe({
+      next: (res) => {
+        this.verifyResult = res;
+        this.snackBar.open('Registration rejected successfully!', 'Close', { duration: 3000 });
+        this.loadData(); // Reload registrations table
+        this.cdr.detectChanges();
+        
+        // Auto-reset verification console back to idle after 3 seconds
+        setTimeout(() => {
+          if (this.verificationStatus === 'valid' && this.verifyResult && this.verifyResult.id === id) {
+            this.resetVerificationConsole();
+          }
+        }, 3000);
+      },
+      error: (err) => {
+        this.snackBar.open(err.error?.error || 'Failed to reject pass in database', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  resetVerificationConsole() {
+    this.verifyQuery = '';
+    this.verifyResult = null;
+    this.verifyCoTravellers = [];
+    this.verificationStatus = 'idle';
+    this.cdr.detectChanges();
+  }
+
+  onVerifyInputChange() {
+    // If scanning with a USB gun scanner, it types quickly and finishes.
+    // If the input matches a typical 16-character digit pattern, automatically trigger search!
+    const query = this.verifyQuery.trim();
+    if (query.length >= 16 || query.includes('Reg ID:')) {
+      this.verifyPass(query);
+    }
+  }
+
+  async startCameraScanner() {
+    if (typeof window === 'undefined') return;
+    this.stopCameraScanner();
+    this.scannerActive = true;
+    this.cdr.detectChanges();
+
+    try {
+      const { Html5QrcodeScanner, Html5QrcodeSupportedFormats } = await import('html5-qrcode');
+      this.scanner = new Html5QrcodeScanner(
+        'qr-reader',
+        { 
+          fps: 15, // Higher frame rate for scanning barcodes on the move
+          qrbox: (width: number, height: number) => {
+            // Rectangular shape is ideal for both wide 1D barcodes and QR codes
+            const boxWidth = Math.min(width * 0.85, 380);
+            const boxHeight = Math.min(height * 0.55, 260);
+            return { width: Math.floor(boxWidth), height: Math.floor(boxHeight) };
+          },
+          videoConstraints: {
+            facingMode: { ideal: 'environment' } // Force back/rear camera on mobile
+          },
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.QR_CODE,
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.CODE_39,
+            Html5QrcodeSupportedFormats.CODE_93,
+            Html5QrcodeSupportedFormats.CODABAR,
+            Html5QrcodeSupportedFormats.UPC_A,
+            Html5QrcodeSupportedFormats.UPC_E,
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.PDF_417
+          ]
+        },
+        /* verbose= */ false
+      );
+
+      this.scanner.render(
+        (decodedText: string) => {
+          this.handleQrScanSuccess(decodedText);
+        },
+        (error: any) => {
+          // Silent or log minor scan warnings
+        }
+      );
+    } catch (e) {
+      console.error('Failed to initialize QR scanner:', e);
+      this.snackBar.open('Failed to start camera. Make sure webcam permissions are granted.', 'Close', { duration: 3000 });
+      this.scannerActive = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  stopCameraScanner() {
+    if (this.scanner) {
+      try {
+        this.scanner.clear().catch((err: any) => console.error('Error clearing scanner:', err));
+      } catch (e) {
+        console.error('Error stopping scanner:', e);
+      }
+      this.scanner = null;
+    }
+    this.scannerActive = false;
+  }
+
+  handleQrScanSuccess(decodedText: string) {
+    this.verifyQuery = decodedText;
+    this.verifyPass(decodedText);
+  }
+
+  playBeep(success: boolean) {
+    if (typeof window === 'undefined') return;
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      if (success) {
+        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch beep
+        gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.12);
+      } else {
+        oscillator.frequency.setValueAtTime(220, audioCtx.currentTime); // Low buzz
+        gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.3);
+      }
+    } catch (e) {
+      console.warn('AudioContext beep failed:', e);
+    }
+  }
+
+  resizeImage(file: File, maxDimension: number): Promise<File> {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > height) {
+            if (width > maxDimension) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            }
+          } else {
+            if (height > maxDimension) {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob((blob) => {
+              if (blob) {
+                const resizedFile = new File([blob], file.name, {
+                  type: file.type,
+                  lastModified: Date.now()
+                });
+                resolve(resizedFile);
+              } else {
+                resolve(file);
+              }
+            }, file.type || 'image/jpeg', 0.85);
+          } else {
+            resolve(file);
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async onBarcodeFileSelected(event: any) {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      let file = files[0];
+      this.verificationStatus = 'loading';
+      this.cdr.detectChanges();
+      
+      try {
+        // Preprocess/downscale the image to make it easier for ZXing to parse barcodes
+        if (file.type.startsWith('image/')) {
+          try {
+            file = await this.resizeImage(file, 2000);
+          } catch (resizeErr) {
+            console.warn('Image resize failed, using original file:', resizeErr);
+          }
+        }
+
+        const { Html5Qrcode, Html5QrcodeSupportedFormats } = await import('html5-qrcode');
+        let tempDiv = document.getElementById('temp-qr-reader');
+        if (!tempDiv) {
+          tempDiv = document.createElement('div');
+          tempDiv.id = 'temp-qr-reader';
+          tempDiv.style.position = 'absolute';
+          tempDiv.style.left = '-9999px';
+          tempDiv.style.top = '-9999px';
+          tempDiv.style.width = '300px';
+          tempDiv.style.height = '300px';
+          tempDiv.style.overflow = 'hidden';
+          document.body.appendChild(tempDiv);
+        }
+        
+        const html5QrCode = new Html5Qrcode('temp-qr-reader', {
+          verbose: false,
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.QR_CODE,
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.CODE_39,
+            Html5QrcodeSupportedFormats.CODE_93,
+            Html5QrcodeSupportedFormats.CODABAR,
+            Html5QrcodeSupportedFormats.UPC_A,
+            Html5QrcodeSupportedFormats.UPC_E,
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.PDF_417
+          ]
+        });
+        html5QrCode.scanFile(file, true)
+          .then((decodedText: string) => {
+            this.handleQrScanSuccess(decodedText);
+            event.target.value = '';
+          })
+          .catch((err: any) => {
+            console.error('File scan error:', err);
+            this.snackBar.open('Could not detect barcode from image. Please ensure photo is clear and well-lit.', 'Close', { duration: 5000 });
+            this.verificationStatus = 'idle';
+            this.cdr.detectChanges();
+            event.target.value = '';
+          });
+      } catch (e) {
+        console.error('Failed to import Html5Qrcode:', e);
+        this.snackBar.open('Scanner initialization failed.', 'Close', { duration: 3000 });
+        this.verificationStatus = 'idle';
+        this.cdr.detectChanges();
+        event.target.value = '';
+      }
     }
   }
 }

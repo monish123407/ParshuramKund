@@ -564,22 +564,138 @@ mat-spinner {
   }
 }
 
+// Responsive Table Container
+.table-responsive-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 8px;
+}
+
 /* Mobile responsive fixes */
 @media (max-width: 768px) {
-  .epass-body {
-    grid-template-columns: 1fr;
-    gap: 20px;
+  // Action buttons responsive adjustments
+  div.mt-5 mat-card {
+    .d-flex.justify-content-between {
+      flex-direction: column !important;
+      gap: 12px !important;
+      
+      button {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+      }
+    }
   }
 
-  .epass-qr {
-    border-left: none;
-    border-top: 2px dashed #cbd5e0;
-    padding-left: 0;
-    padding-top: 20px;
+  // e-Pass Card mobile adjustments
+  .epass-card {
+    .epass-header {
+      flex-direction: column !important;
+      align-items: center !important;
+      text-align: center !important;
+      padding: 16px !important;
+      gap: 12px !important;
+    }
+    
+    .epass-brand {
+      flex-direction: column !important;
+      gap: 8px !important;
+      align-items: center !important;
+      
+      h3 {
+        font-size: 15px !important;
+      }
+    }
+
+    .epass-badge {
+      align-self: center !important;
+    }
+
+    .epass-body {
+      grid-template-columns: 1fr;
+      gap: 20px;
+      padding: 16px !important;
+    }
+
+    .epass-qr {
+      border-left: none;
+      border-top: 2px dashed #cbd5e0;
+      padding-left: 0;
+      padding-top: 20px;
+    }
+    
+    .epass-row {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .epass-cotravelers {
+      padding: 16px !important;
+    }
+
+    .epass-footer {
+      padding: 12px 16px !important;
+    }
   }
-  
-  .epass-row {
-    flex-direction: column;
-    gap: 12px;
+
+  // Address text word wrap
+  .address-value {
+    word-break: break-word !important;
+    white-space: normal !important;
+  }
+}
+
+/* Loading Details Preview Card styling */
+.loading-state-container {
+  animation: fadeInUp 0.4s ease-out;
+
+  .loading-preview-card {
+    border-radius: 16px !important;
+    border: 1px solid rgba(140, 118, 71, 0.15) !important;
+    box-shadow: 0 10px 30px rgba(140, 118, 71, 0.05) !important;
+    background-color: #ffffff;
+    
+    @media (max-width: 576px) {
+      padding: 16px !important;
+    }
+    
+    .preview-card-header {
+      border-bottom: 1.5px solid rgba(140, 118, 71, 0.1) !important;
+      
+      mat-icon {
+        color: #b8860b !important;
+      }
+      
+      h3 {
+        color: #1a2a40 !important;
+        font-family: 'Outfit', sans-serif;
+      }
+    }
+
+    .text-muted {
+      color: #8c7647 !important;
+      font-weight: 600;
+      font-size: 11px;
+    }
+
+    .fw-semibold, .fw-bold, .text-dark {
+      color: #1a2a40 !important;
+    }
+
+    .text-success {
+      color: #2f855a !important;
+    }
+
+    .badge {
+      background-color: #faf9f6 !important;
+      border: 1px solid #e9e5d9 !important;
+      color: #1a2a40 !important;
+    }
+  }
+
+  h4.text-muted {
+    font-family: 'Outfit', sans-serif;
+    color: #8c7647 !important;
   }
 }

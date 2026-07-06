@@ -10,7 +10,7 @@ import com.parshuramKund.Entity.Applicant;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 @Repository
-public interface ApplicantRepository extends JpaRepository<Applicant, Long> {
+public interface ApplicantRepository extends JpaRepository<Applicant, String> {
 
 	List<Applicant> findByPhone(String mobileNo);
 

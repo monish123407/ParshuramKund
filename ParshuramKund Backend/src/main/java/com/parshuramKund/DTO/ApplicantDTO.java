@@ -10,7 +10,7 @@ import jakarta.persistence.Column;
 public class ApplicantDTO {
 	
 	
-	private Long id;
+	private String id;
  
     private String fullName;
     
@@ -67,6 +67,10 @@ public class ApplicantDTO {
     private String aadharNumber;
     
     private String aadharPhotoPath;
+    private Boolean verified = false;
+    private Boolean rejected = false;
+    private String verifiedBy;
+    private String verifiedAt;
 
 	public String getAadharNumber() {
 		return aadharNumber;
@@ -85,6 +89,38 @@ public class ApplicantDTO {
 
 	public void setAadharPhotoPath(String aadharPhotoPath) {
 		this.aadharPhotoPath = aadharPhotoPath;
+	}
+
+	public Boolean getVerified() {
+		return verified;
+	}
+
+	public void setVerified(Boolean verified) {
+		this.verified = verified;
+	}
+
+	public Boolean getRejected() {
+		return rejected;
+	}
+
+	public void setRejected(Boolean rejected) {
+		this.rejected = rejected;
+	}
+
+	public String getVerifiedBy() {
+		return verifiedBy;
+	}
+
+	public void setVerifiedBy(String verifiedBy) {
+		this.verifiedBy = verifiedBy;
+	}
+
+	public String getVerifiedAt() {
+		return verifiedAt;
+	}
+
+	public void setVerifiedAt(String verifiedAt) {
+		this.verifiedAt = verifiedAt;
 	}
     
     
@@ -271,12 +307,12 @@ public class ApplicantDTO {
 	}
 	
 	
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -325,6 +361,10 @@ public class ApplicantDTO {
 			}
 		}
 		applicantDTO.setAadharPhotoPath(applicant.getAadharPhotoPath());
+		applicantDTO.setVerified(applicant.getVerified());
+		applicantDTO.setRejected(applicant.getRejected());
+		applicantDTO.setVerifiedBy(applicant.getVerifiedBy());
+		applicantDTO.setVerifiedAt(applicant.getVerifiedAt());
 		return applicantDTO;
 		
 	}

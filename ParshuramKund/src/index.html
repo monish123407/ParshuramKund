@@ -16,8 +16,141 @@
       rel="stylesheet"
     />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <style>
+      body, html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background: #0f172a;
+      }
+      .initial-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+        z-index: 9999;
+        overflow: hidden;
+      }
+      .loader-content {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        animation: loaderFadeIn 1s ease-out;
+      }
+      .logo-container {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .loader-logo {
+        width: 80px;
+        height: 80px;
+        z-index: 10;
+        animation: logoPulse 2s infinite ease-in-out;
+      }
+      .glow-ring {
+        position: absolute;
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(217, 119, 6, 0.4) 0%, rgba(217, 119, 6, 0) 70%);
+        animation: glowPulse 2s infinite ease-in-out;
+        z-index: 5;
+      }
+      .spinning-ring {
+        position: absolute;
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        border-top-color: #d97706;
+        border-bottom-color: #d97706;
+        animation: loaderSpin 1.5s infinite linear;
+        z-index: 6;
+      }
+      .loader-title {
+        color: #ffffff;
+        font-family: 'Roboto', sans-serif;
+        font-size: 20px;
+        font-weight: 500;
+        letter-spacing: 2px;
+        margin: 0 0 8px 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      }
+      .loader-subtitle {
+        color: #94a3b8;
+        font-family: 'Roboto', sans-serif;
+        font-size: 13px;
+        font-weight: 400;
+        letter-spacing: 1px;
+        margin: 0 0 20px 0;
+      }
+      .loading-bar-container {
+        width: 200px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .loading-bar {
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(90deg, #d97706, #f59e0b);
+        border-radius: 2px;
+        animation: progressMove 1.5s infinite ease-in-out;
+      }
+
+      @keyframes loaderFadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      @keyframes loaderSpin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      @keyframes logoPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.06); }
+      }
+      @keyframes glowPulse {
+        0%, 100% { transform: scale(0.9); opacity: 0.5; }
+        50% { transform: scale(1.2); opacity: 1; }
+      }
+      @keyframes progressMove {
+        0% { transform: translateX(-100%); }
+        50% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+      }
+    </style>
   </head>
   <body>
-    <app-root></app-root>
+    <app-root>
+      <!-- Premium loading screen shown while Angular bundles are fetching -->
+      <div class="initial-loader">
+        <div class="loader-content">
+          <div class="logo-container">
+            <img src="./assets/Parshuramlogo.png" alt="Parshuram Kund Logo" class="loader-logo" />
+            <div class="glow-ring"></div>
+            <div class="spinning-ring"></div>
+          </div>
+          <h1 class="loader-title">PARSHURAM KUND MELA 2027</h1>
+          <p class="loader-subtitle">Loading the Sacred Experience...</p>
+          <div class="loading-bar-container">
+            <div class="loading-bar"></div>
+          </div>
+        </div>
+      </div>
+    </app-root>
   </body>
 </html>

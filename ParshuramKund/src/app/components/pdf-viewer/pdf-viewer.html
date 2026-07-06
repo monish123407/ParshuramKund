@@ -3,8 +3,7 @@
     <mat-card class="p-4 shadow">
   
       <h2 class="mb-4 text-center">
-        Parshuram Kund Registration Download
-
+        {{ registrationNo ? 'Parshuram Kund Pilgrim Entry Pass' : 'Parshuram Kund Registration Download' }}
       </h2>
   
   <div *ngIf="afterRegister" class="container mt-4">
@@ -87,15 +86,7 @@
   
     </mat-card>
   
-    <!-- Spinner -->
-  
-    <div
-      *ngIf="loading"
-      class="text-center mt-5">
-  
-      <mat-spinner></mat-spinner>
-  
-    </div>
+
   
     <!-- Table -->
   
@@ -103,105 +94,107 @@
       *ngIf="registrations.length > 0"
       class="mt-4 p-3 shadow">
   
-      <table
-        mat-table
-        [dataSource]="pagedRegistrations"
-        class="w-100">
-  
-        <!-- Registration No -->
-  
-        <ng-container matColumnDef="registrationNo">
-  
-          <th mat-header-cell *matHeaderCellDef>
-            Registration No
-          </th>
-  
-          <td mat-cell *matCellDef="let element">
-            {{ element.id }}
-          </td>
-  
-        </ng-container>
-  
-        <!-- Name -->
-  
-        <ng-container matColumnDef="name">
-  
-          <th mat-header-cell *matHeaderCellDef>
-           Applicant Name
-          </th>
-  
-          <td mat-cell *matCellDef="let element">
-            {{ element.fullName }}
-          </td>
-  
-        </ng-container>
-        <!-- Booking Date -->
-  
-        <ng-container matColumnDef="bookingDate">
-  
-          <th mat-header-cell *matHeaderCellDef>
-            Booking Date
-          </th>
-  
-          <td mat-cell *matCellDef="let element">
-            {{ element.bookingDate }}
-          </td>
-  
-        </ng-container>
-  
-        <!-- Visit Date -->
-  
-        <ng-container matColumnDef="visitDate">
-  
-          <th mat-header-cell *matHeaderCellDef>
-            Visit Date
-          </th>
-  
-          <td mat-cell *matCellDef="let element">
-            {{ element.holyDipDate }}
-          </td>
-  
-        </ng-container>
-  
-        <!-- Action -->
-  
-        <ng-container matColumnDef="action">
-  
-          <th mat-header-cell *matHeaderCellDef>
-            Action
-          </th>
-  
-          <td mat-cell *matCellDef="let element">
-  
-            <button
-              mat-raised-button
-              color="accent"
-              (click)="submitForm(element.id)">
-  
-              View Pass
-  
-            </button>
-  
-          </td>
-  
-        </ng-container>
-  
-        <tr
-          mat-header-row
-          *matHeaderRowDef="displayedColumns">
-  
-        </tr>
-  
-        <tr
-          mat-row
-          *matRowDef="
-            let row;
-            columns: displayedColumns;
-          ">
-  
-        </tr>
-  
-      </table>
+      <div class="table-responsive-container">
+        <table
+          mat-table
+          [dataSource]="pagedRegistrations"
+          class="w-100">
+    
+          <!-- Registration No -->
+    
+          <ng-container matColumnDef="registrationNo">
+    
+            <th mat-header-cell *matHeaderCellDef>
+              Registration No
+            </th>
+    
+            <td mat-cell *matCellDef="let element">
+              {{ element.id }}
+            </td>
+    
+          </ng-container>
+    
+          <!-- Name -->
+    
+          <ng-container matColumnDef="name">
+    
+            <th mat-header-cell *matHeaderCellDef>
+             Applicant Name
+            </th>
+    
+            <td mat-cell *matCellDef="let element">
+              {{ element.fullName }}
+            </td>
+    
+          </ng-container>
+          <!-- Booking Date -->
+    
+          <ng-container matColumnDef="bookingDate">
+    
+            <th mat-header-cell *matHeaderCellDef>
+              Booking Date
+            </th>
+    
+            <td mat-cell *matCellDef="let element">
+              {{ element.bookingDate }}
+            </td>
+    
+          </ng-container>
+    
+          <!-- Visit Date -->
+    
+          <ng-container matColumnDef="visitDate">
+    
+            <th mat-header-cell *matHeaderCellDef>
+              Visit Date
+            </th>
+    
+            <td mat-cell *matCellDef="let element">
+              {{ element.holyDipDate }}
+            </td>
+    
+          </ng-container>
+    
+          <!-- Action -->
+    
+          <ng-container matColumnDef="action">
+    
+            <th mat-header-cell *matHeaderCellDef>
+              Action
+            </th>
+    
+            <td mat-cell *matCellDef="let element">
+    
+              <button
+                mat-raised-button
+                color="accent"
+                (click)="submitForm(element.id)">
+    
+                View Pass
+    
+              </button>
+    
+            </td>
+    
+          </ng-container>
+    
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumns">
+    
+          </tr>
+    
+          <tr
+            mat-row
+            *matRowDef="
+              let row;
+              columns: displayedColumns;
+            ">
+    
+          </tr>
+    
+        </table>
+      </div>
       <div class="pagination" *ngIf="registrations.length > pageSize">
 
         <button
@@ -228,6 +221,59 @@
   </div>
     
   
+    <!-- Spinner & Details Loading State -->
+    <div *ngIf="loading" class="loading-state-container mt-4">
+      <!-- Pilgrim Registration Details Preview -->
+      <div *ngIf="applicantDetails" class="loading-preview-card shadow-sm p-4 mb-4 border rounded bg-white">
+        <div class="preview-card-header d-flex align-items-center mb-3 pb-2 border-bottom">
+          <mat-icon color="primary" class="me-2">assignment_ind</mat-icon>
+          <h3 class="m-0 text-primary" style="font-weight: 600;">Pilgrim Registration Details</h3>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <span class="text-muted d-block small uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">REGISTRATION ID</span>
+            <span class="fw-bold text-dark" style="font-size: 1.1rem;">{{ applicantDetails.id }}</span>
+          </div>
+          <div class="col-md-6 mb-3" *ngIf="applicantDetails.bookingDate">
+            <span class="text-muted d-block small uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">BOOKING DATE</span>
+            <span class="text-dark">{{ applicantDetails.bookingDate }}</span>
+          </div>
+          <div class="col-md-6 mb-3">
+            <span class="text-muted d-block small uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">PILGRIM NAME</span>
+            <span class="text-dark fw-semibold">{{ applicantDetails.fullName }}</span>
+          </div>
+          <div class="col-md-6 mb-3">
+            <span class="text-muted d-block small uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">AGE / GENDER</span>
+            <span class="text-dark">{{ applicantDetails.age }} / {{ applicantDetails.gender }}</span>
+          </div>
+          <div class="col-md-6 mb-3">
+            <span class="text-muted d-block small uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">DATE OF HOLY DIP</span>
+            <span class="text-success fw-bold">{{ applicantDetails.holyDipDate }}</span>
+          </div>
+          <div class="col-md-6 mb-3" *ngIf="applicantDetails.phone">
+            <span class="text-muted d-block small uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">MOBILE NUMBER</span>
+            <span class="text-dark">{{ applicantDetails.phone }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="coTravellersList && coTravellersList.length > 0" class="preview-cotravellers mt-2 pt-3 border-top">
+          <h5 class="text-secondary mb-2" style="font-size: 0.9rem; font-weight: 600;">Co-Applicants ({{ coTravellersList.length }})</h5>
+          <div class="d-flex flex-wrap gap-2">
+            <span *ngFor="let co of coTravellersList" class="badge bg-light text-dark border p-2 fw-normal" style="font-size: 0.85rem;">
+              {{ co.name }} ({{ co.age }}, {{ co.gender }})
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Loader -->
+      <div class="text-center py-4">
+        <mat-spinner class="mx-auto mb-3" [diameter]="50" style="display: inline-block;"></mat-spinner>
+        <h4 class="text-muted" style="font-weight: 500;">Compiling and generating your Entry Pass PDF. Please wait...</h4>
+      </div>
+    </div>
+  
     </mat-card>
   
     <!-- Spinner -->
@@ -251,7 +297,8 @@
               <img src="assets/Parshuramlogo.png" alt="Mela Logo" class="epass-logo-img" onerror="this.src='../../../assets/Parshuramlogo.png'; this.onerror=null;">
               <div>
                 <h3>PARSHURAM KUND MELA 2027</h3>
-                <p>Govt. of Arunachal Pradesh | Pilgrim Entry Pass</p>
+                <p>District Administration Lohit</p>
+                <p> Pilgrim Entry Pass</p>
               </div>
             </div>
             <div class="epass-badge">
@@ -264,7 +311,7 @@
               <div class="epass-row">
                 <div class="epass-col">
                   <span class="epass-label">REGISTRATION ID</span>
-                  <span class="epass-value highlight">#{{ applicantDetails.id }}</span>
+                  <span class="epass-value highlight">{{ applicantDetails.id }}</span>
                 </div>
                 <div class="epass-col">
                   <span class="epass-label">BOOKING DATE</span>

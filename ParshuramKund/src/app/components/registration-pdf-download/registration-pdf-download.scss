@@ -152,8 +152,51 @@
       text-align: left;
     }
   
-    .button-group {
-      flex-direction: column;
+  }
+
+  /* Rejected Styles */
+  .rejected-icon {
+    background: #c62828 !important;
+  }
+
+  h1.text-danger {
+    color: #c62828 !important;
+  }
+
+  .rejected-banner {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #ffcdd2;
+    margin-bottom: 25px;
+    text-align: left;
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
     }
-  
+
+    strong {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: #b71c1c;
+      line-height: 1.4;
+    }
+  }
+
+  .download-btn:disabled {
+    background: #e2e8f0 !important;
+    color: #cbd5e1 !important;
+    cursor: not-allowed;
   }

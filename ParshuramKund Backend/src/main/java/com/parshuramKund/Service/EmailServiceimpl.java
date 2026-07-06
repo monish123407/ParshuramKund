@@ -79,7 +79,7 @@ public class EmailServiceimpl implements EmailService {
         sb.append("<table style='width: 100%; border-collapse: collapse; margin-top: 15px;'>");
         
         sb.append("<tr><td style='padding: 8px; border-bottom: 1px solid #eee; width: 40%; font-weight: bold; color: #1a2a40;'>Registration ID:</td>");
-        sb.append("<td style='padding: 8px; border-bottom: 1px solid #eee;'>#").append(applicant.getId()).append("</td></tr>");
+        sb.append("<td style='padding: 8px; border-bottom: 1px solid #eee;'>").append(applicant.getId()).append("</td></tr>");
         
         sb.append("<tr><td style='padding: 8px; border-bottom: 1px solid #eee; font-weight: bold; color: #1a2a40;'>Holy Dip Date:</td>");
         sb.append("<td style='padding: 8px; border-bottom: 1px solid #eee;'>").append(applicant.getHolyDipDate()).append("</td></tr>");

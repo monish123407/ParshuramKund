@@ -63,18 +63,18 @@
           <div class="col-md-6">
             <mat-form-field appearance="outline" class="premium-field">
               <mat-label>Full Name of the Applicant</mat-label>
-              <input matInput [(ngModel)]="applicant.fullName" required placeholder="Enter your full name">
+              <input matInput [(ngModel)]="applicant.fullName" required placeholder="Enter your full name" autocomplete="off">
             </mat-form-field>
           </div>
           <div class="col-md-6">
             <mat-form-field appearance="outline" class="premium-field">
               <mat-label>Select Date of Holy Dip</mat-label>
               <mat-select [(ngModel)]="applicant.holyDipDate">
-                <mat-option value="12 Jan">12 JAN TUE, 2027</mat-option>
-                <mat-option value="13 Jan">13 JAN WED, 2027</mat-option>
-                <mat-option value="14 Jan">14 JAN THU, 2027</mat-option>
-                <mat-option value="15 Jan">15 JAN FRI, 2027</mat-option>
-                <mat-option value="16 Jan">16 JAN SAT, 2027</mat-option>
+                <mat-option value="12 Jan, 2027">12 JAN TUE, 2027</mat-option>
+                <mat-option value="13 Jan, 2027">13 JAN WED, 2027</mat-option>
+                <mat-option value="14 Jan, 2027">14 JAN THU, 2027</mat-option>
+                <mat-option value="15 Jan, 2027">15 JAN FRI, 2027</mat-option>
+                <mat-option value="16 Jan, 2027">16 JAN SAT, 2027</mat-option>
               </mat-select>
             </mat-form-field>
           </div>
@@ -84,7 +84,7 @@
           <div class="col-md-6">
             <mat-form-field appearance="outline" class="premium-field">
               <mat-label>Age of Applicant</mat-label>
-              <input matInput type="number" [(ngModel)]="applicant.age" placeholder="Enter age" min="1">
+              <input matInput type="number" [(ngModel)]="applicant.age" placeholder="Enter age" min="1" autocomplete="off">
             </mat-form-field>
           </div>
           <div class="col-md-6">
@@ -104,7 +104,7 @@
           <div class="col-md-6">
             <mat-form-field appearance="outline" class="premium-field">
               <mat-label>Aadhaar Number (12 digits)</mat-label>
-              <input matInput [(ngModel)]="applicant.aadharNumber" placeholder="Enter 12-digit Aadhaar number" pattern="[0-9]{12}" maxlength="12" required>
+              <input matInput [(ngModel)]="applicant.aadharNumber" placeholder="Enter 12-digit Aadhaar number" pattern="[0-9]{12}" maxlength="12" required autocomplete="off">
               <mat-hint>Should be exactly 12 numeric digits</mat-hint>
             </mat-form-field>
           </div>
@@ -143,14 +143,15 @@
         <div class="row">
           <div class="col-md-6">
             <mat-form-field appearance="outline" class="premium-field">
-              <mat-label>Email (Optional)</mat-label>
-              <input matInput type="email" [(ngModel)]="applicant.email" placeholder="example@domain.com">
+              <mat-label>Email Address</mat-label>
+              <input matInput type="email" [(ngModel)]="applicant.email" placeholder="example@domain.com" required autocomplete="off">
             </mat-form-field>
           </div>
           <div class="col-md-6">
             <mat-form-field appearance="outline" class="premium-field">
-              <mat-label>Mobile Number</mat-label>
-              <input matInput [(ngModel)]="applicant.phone" placeholder="10-digit mobile number">
+              <mat-label>Mobile Number (10 digits)</mat-label>
+              <input matInput [(ngModel)]="applicant.phone" placeholder="Enter 10-digit mobile number" pattern="[0-9]{10}" maxlength="10" required autocomplete="off">
+              <mat-hint>Should be exactly 10 numeric digits</mat-hint>
             </mat-form-field>
           </div>
         </div>
@@ -189,7 +190,7 @@
             
             <mat-form-field appearance="outline" class="premium-field">
               <mat-label>Street Address</mat-label>
-              <textarea matInput rows="3" [(ngModel)]="applicant.presentAddress" placeholder="House no, Street name, Locality..."></textarea>
+              <textarea matInput rows="3" [(ngModel)]="applicant.presentAddress" placeholder="House no, Street name, Locality..." autocomplete="off"></textarea>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="premium-field">
@@ -215,7 +216,7 @@
 
             <mat-form-field appearance="outline" class="premium-field">
               <mat-label>Present Pincode</mat-label>
-              <input matInput [(ngModel)]="applicant.presentPinCode" placeholder="6-digit pincode">
+              <input matInput [(ngModel)]="applicant.presentPinCode" placeholder="6-digit pincode" autocomplete="off">
             </mat-form-field>
           </div>
 
@@ -230,7 +231,7 @@
 
             <mat-form-field appearance="outline" class="premium-field">
               <mat-label>Permanent Address</mat-label>
-              <textarea matInput rows="3" [(ngModel)]="applicant.permanentAddress" placeholder="House no, Street name, Locality..."></textarea>
+              <textarea matInput rows="3" [(ngModel)]="applicant.permanentAddress" placeholder="House no, Street name, Locality..." autocomplete="off"></textarea>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="premium-field">
@@ -251,12 +252,12 @@
 
             <mat-form-field appearance="outline" class="premium-field" *ngIf="applicant.permanentDistrict === 'Other'">
               <mat-label>Specify District Name</mat-label>
-              <input matInput [(ngModel)]="customPermanentDistrict" required placeholder="Type district name">
+              <input matInput [(ngModel)]="customPermanentDistrict" required placeholder="Type district name" autocomplete="off">
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="premium-field">
               <mat-label>Permanent Pincode</mat-label>
-              <input matInput [(ngModel)]="applicant.permanentPinCode" placeholder="6-digit pincode">
+              <input matInput [(ngModel)]="applicant.permanentPinCode" placeholder="6-digit pincode" autocomplete="off">
             </mat-form-field>
           </div>
         </div>
@@ -303,13 +304,13 @@
               <div class="col-md-3">
                 <mat-form-field appearance="outline" class="premium-field">
                   <mat-label>Full Name</mat-label>
-                  <input matInput [(ngModel)]="traveller.name" placeholder="Enter name">
+                  <input matInput [(ngModel)]="traveller.name" placeholder="Enter name" autocomplete="off">
                 </mat-form-field>
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline" class="premium-field">
                   <mat-label>Age</mat-label>
-                  <input matInput type="number" [(ngModel)]="traveller.age" placeholder="Enter age" min="1">
+                  <input matInput type="number" [(ngModel)]="traveller.age" placeholder="Enter age" min="1" autocomplete="off">
                 </mat-form-field>
               </div>
               <div class="col-md-3">
@@ -395,26 +396,28 @@
           <!-- Section: Co-travellers -->
           <div class="preview-card-item" *ngIf="applicant.isPresentCoApplicant === 'Yes' && coTravellers.length > 0">
             <h4><mat-icon>people</mat-icon> Co-travellers ({{ coTravellers.length }})</h4>
-            <table class="preview-table co-travellers-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Name</th>
-                  <th>Age</th>
-                  <th>Gender</th>
-                  <th>Co-morbidities</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let traveller of coTravellers; let idx = index">
-                  <td>{{ idx + 1 }}</td>
-                  <td>{{ traveller.name }}</td>
-                  <td>{{ traveller.age }}</td>
-                  <td>{{ traveller.gender }}</td>
-                  <td>{{ traveller.comorbidities && traveller.comorbidities.length > 0 ? traveller.comorbidities.join(', ') : 'None' }}</td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="table-responsive-container">
+              <table class="preview-table co-travellers-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Co-morbidities</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let traveller of coTravellers; let idx = index">
+                    <td>{{ idx + 1 }}</td>
+                    <td>{{ traveller.name }}</td>
+                    <td>{{ traveller.age }}</td>
+                    <td>{{ traveller.gender }}</td>
+                    <td>{{ traveller.comorbidities && traveller.comorbidities.length > 0 ? traveller.comorbidities.join(', ') : 'None' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 

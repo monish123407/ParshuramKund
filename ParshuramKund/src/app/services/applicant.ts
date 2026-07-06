@@ -8,7 +8,7 @@ export class ApplicantService {
 
   private get baseUrl(): string {
     if (typeof window !== 'undefined') {
-      return `http://${window.location.hostname}:8081`;
+      return window.location.origin;
     }
     return 'http://localhost:8081';
   }
@@ -41,6 +41,10 @@ export class ApplicantService {
       if (role) {
         headers['X-Admin-Role'] = role;
       }
+      const username = sessionStorage.getItem('admin_username');
+      if (username) {
+        headers['X-Admin-Username'] = username;
+      }
     }
     return headers;
   }
@@ -62,6 +66,14 @@ export class ApplicantService {
 
   deleteRegistration(id: any) {
     return this.http.delete(`${this.apiUrl}/registrations/${id}`, { headers: this.getHeaders() });
+  }
+
+  verifyRegistration(id: string) {
+    return this.http.post<any>(`${this.apiUrl}/registrations/${id}/verify`, {}, { headers: this.getHeaders() });
+  }
+
+  rejectRegistration(id: string) {
+    return this.http.post<any>(`${this.apiUrl}/registrations/${id}/reject`, {}, { headers: this.getHeaders() });
   }
 
   resendRegistrationEmail(id: any) {

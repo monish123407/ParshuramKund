@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApplicantService } from '../../services/applicant';
+import { generateClientPdf } from '../../utils/pdf-generator';
 
 @Component({
   selector: 'app-pdf-viewer',
@@ -26,6 +27,12 @@ export class PdfViewer {
     }
 
     this.searchQuery = '';
+
+    // Synchronously check snapshot query parameters to prevent initial search panel layout flashing
+    const idParam = this.route.snapshot.queryParams['id'];
+    if (idParam) {
+      this.afterRegister = false;
+    }
 
     this.route.queryParams.subscribe(params => {
       if(params['id']){
@@ -54,7 +61,24 @@ export class PdfViewer {
     private cd: ChangeDetectorRef,
     private applicantService: ApplicantService,
     private router: Router,
-  ) {}
+  ) {
+    if (typeof window !== 'undefined') {
+      const navigation = this.router.getCurrentNavigation();
+      if (navigation && navigation.extras && navigation.extras.state) {
+        const stateApp = navigation.extras.state['applicant'];
+        if (stateApp) {
+          this.applicantDetails = stateApp;
+          this.qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
+            `Reg ID: ${stateApp.id}\nName: ${stateApp.fullName}\nHoly Dip Date: ${stateApp.holyDipDate}\nPhone: ${stateApp.phone}`
+          )}`;
+        }
+        const stateCo = navigation.extras.state['coTravellers'];
+        if (stateCo) {
+          this.coTravellersList = stateCo;
+        }
+      }
+    }
+  }
 
   togglePdfFrame() {
     this.showPdfFrame = !this.showPdfFrame;
@@ -92,43 +116,104 @@ export class PdfViewer {
     this.loading = true;
     this.registrationNo = id;
     this.rawPdfUrl = '';
-    this.applicantDetails = null;
-    this.coTravellersList = [];
+
+    // Load from sessionStorage if available to guarantee instant display
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      try {
+        const lastRegStr = sessionStorage.getItem('lastRegistration');
+        if (lastRegStr) {
+          const lastReg = JSON.parse(lastRegStr);
+          if (lastReg && lastReg.applicant && String(lastReg.applicant.id) === String(id)) {
+            if (lastReg.applicant.rejected) {
+              this.applicantDetails = null;
+              this.coTravellersList = [];
+              this.pdfViewBool = false;
+              this.loading = false;
+              this.cd.detectChanges();
+              this.snackBar.open('This registration has been rejected by administration. Entry pass cannot be generated.', 'Close', {
+                duration: 5000,
+              });
+              return;
+            }
+            this.applicantDetails = lastReg.applicant;
+            this.coTravellersList = lastReg.coTravellers || [];
+            this.qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
+              `Reg ID: ${this.applicantDetails.id}\nName: ${this.applicantDetails.fullName}\nHoly Dip Date: ${this.applicantDetails.holyDipDate}\nPhone: ${this.applicantDetails.phone}`
+            )}`;
+          }
+        }
+      } catch (e) {
+        console.error('Error loading lastRegistration from sessionStorage:', e);
+      }
+    }
+
+    if (!this.applicantDetails || String(this.applicantDetails.id) !== String(id)) {
+      this.applicantDetails = null;
+      this.coTravellersList = [];
+    }
     this.cd.detectChanges();
 
-    this.applicantService.submitForm(id).subscribe({
-      next: (blob: Blob) => {
-        this.loading = false;
+    this.applicantService.search(id.toString()).subscribe({
+      next: (results) => {
+        if (results && results.length > 0) {
+          const applicant = results[0];
+          
+          if (applicant.rejected) {
+            this.applicantDetails = null;
+            this.coTravellersList = [];
+            this.pdfViewBool = false;
+            this.rawPdfUrl = '';
+            this.loading = false;
+            this.cd.detectChanges();
+            this.snackBar.open('This registration has been rejected by administration. Entry pass cannot be generated.', 'Close', {
+              duration: 5000,
+            });
+            return;
+          }
 
-        const fileURL = URL.createObjectURL(blob);
-        this.rawPdfUrl = fileURL;
+          this.applicantDetails = applicant;
+          this.qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
+            `Reg ID: ${applicant.id}\nName: ${applicant.fullName}\nHoly Dip Date: ${applicant.holyDipDate}\nPhone: ${applicant.phone}`
+          )}`;
+          
+          if (applicant.coTraveller) {
+            try {
+              this.coTravellersList = JSON.parse(applicant.coTraveller);
+            } catch (e) {
+              console.error('Error parsing coTravellers:', e);
+              this.coTravellersList = [];
+            }
+          }
 
-        const finalUrl = `${fileURL}#toolbar=0&navpanes=0&scrollbar=1`;
-        this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(finalUrl);
-
-        this.fetchApplicantDetails(id);
-        this.pdfViewBool = true;
-        this.cd.detectChanges();
-
-        this.snackBar.open('Pass Generated Successfully', 'Close', {
-          duration: 3000,
-        });
+          generateClientPdf(applicant).then((doc) => {
+            const blob = doc.output('blob');
+            const fileURL = URL.createObjectURL(blob);
+            this.rawPdfUrl = fileURL;
+            this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(fileURL);
+            this.pdfViewBool = true;
+            this.loading = false;
+            this.cd.detectChanges();
+            
+            this.snackBar.open('Pass Generated Locally Successfully', 'Close', {
+              duration: 3000,
+            });
+          }).catch((pdfErr) => {
+            this.loading = false;
+            this.cd.detectChanges();
+            console.error('Error generating PDF on client:', pdfErr);
+            this.snackBar.open('Failed to generate PDF pass', 'Close', { duration: 3000 });
+          });
+        } else {
+          this.loading = false;
+          this.cd.detectChanges();
+          this.snackBar.open('Registration ID not found', 'Close', { duration: 3000 });
+        }
       },
       error: (err) => {
         this.loading = false;
-        console.error('Error generating pass blob, using fallback:', err);
-        
-        const directUrl = `http://${window.location.hostname}:8081/api/auth/generate-pdf/${id}`;
-        this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(`${directUrl}#toolbar=0&navpanes=0&scrollbar=1`);
-        this.rawPdfUrl = directUrl;
-
-        this.fetchApplicantDetails(id);
-        this.pdfViewBool = true;
         this.cd.detectChanges();
-
-        this.snackBar.open('Pass Rendered Successfully', 'Close', {
-          duration: 3000,
-        });
+        console.error('Error fetching applicant details:', err);
+        this.snackBar.open('Failed to retrieve pilgrim details', 'Close', { duration: 3000 });
       }
     });
   }
@@ -152,12 +237,20 @@ export class PdfViewer {
         iframe.contentWindow.print();
       } catch (e) {
         console.error('Error executing print:', e);
-        const printUrl = `http://${window.location.hostname}:8081/api/auth/generate-pdf/${this.registrationNo}`;
-        window.open(printUrl, '_blank');
+        if (this.applicantDetails) {
+          generateClientPdf(this.applicantDetails).then((doc) => {
+            doc.autoPrint();
+            doc.output('dataurlnewwindow');
+          });
+        }
       }
     } else {
-      const printUrl = `http://${window.location.hostname}:8081/api/auth/generate-pdf/${this.registrationNo}`;
-      window.open(printUrl, '_blank');
+      if (this.applicantDetails) {
+        generateClientPdf(this.applicantDetails).then((doc) => {
+          doc.autoPrint();
+          doc.output('dataurlnewwindow');
+        });
+      }
     }
   }
 

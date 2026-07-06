@@ -5,16 +5,27 @@
     <div class="success-card">
   
       <!-- Success Icon -->
-      <div class="success-icon">
-        ✓
+      <div class="success-icon" [class.rejected-icon]="applicantDetails?.rejected">
+        {{ applicantDetails?.rejected ? '✗' : '✓' }}
       </div>
   
       <!-- Heading -->
-      <h1>Registration Successful</h1>
+      <h1 [class.text-danger]="applicantDetails?.rejected">
+        {{ applicantDetails?.rejected ? 'Registration Rejected' : 'Registration Successful' }}
+      </h1>
   
       <p class="subtitle">
-        Your registration has been completed successfully.
+        {{ applicantDetails?.rejected ? 'Your registration has been rejected by administration.' : 'Your registration has been completed successfully.' }}
       </p>
+
+      <!-- Rejected Banner -->
+      <div *ngIf="applicantDetails?.rejected" class="rejected-banner">
+        <mat-icon style="display: inline-flex; align-items: center; justify-content: center;">warning</mat-icon>
+        <div>
+          <strong>Admission Blocked</strong>
+          <p>This pilgrim pass is rejected. You cannot generate or print a rejected pass.</p>
+        </div>
+      </div>
   
       <!-- Registration Details -->
       <div class="details-section">
@@ -54,7 +65,7 @@
       <!-- Buttons -->
       <div class="button-group">
   
-        <button class="download-btn" (click)="downloadForm()">
+        <button class="download-btn" (click)="downloadForm()" [disabled]="applicantDetails?.rejected">
           ⬇ Download Registration Form
         </button>
   

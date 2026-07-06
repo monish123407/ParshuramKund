@@ -183,8 +183,9 @@ export class Register implements OnDestroy {
   isStep2Valid(): boolean {
     const app = this.applicant;
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const phoneRegex = /^[0-9]{10}$/;
     return !!(
-      app.phone && app.phone.trim() !== '' &&
+      app.phone && phoneRegex.test(app.phone.trim()) &&
       app.gender && app.gender !== '' &&
       app.email && emailRegex.test(app.email.trim())
     );
@@ -425,9 +426,25 @@ export class Register implements OnDestroy {
           this.isRegistrationSuccess = true;
           this.isSubmitting = false;
           console.log(res);
+
+          if (typeof window !== 'undefined' && window.sessionStorage) {
+            try {
+              sessionStorage.setItem('lastRegistration', JSON.stringify({
+                applicant: res,
+                coTravellers: serializedCoTravellers
+              }));
+            } catch (e) {
+              console.error('Failed to write lastRegistration to sessionStorage:', e);
+            }
+          }
+
           this.router.navigate(['/pdfDownload'],{
             queryParams: {
               id: res.id
+            },
+            state: {
+              applicant: res,
+              coTravellers: serializedCoTravellers
             }
           })
         },

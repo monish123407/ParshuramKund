@@ -74,7 +74,7 @@ export class App {
     this.scrollToBottom();
 
     // Call backend
-    this.http.post<any>(`http://${window.location.hostname}:8081/api/ai/chat`, { message: msg })
+    this.http.post<any>('/api/ai/chat', { message: msg })
       .subscribe({
         next: (res) => {
           this.isTyping = false;
