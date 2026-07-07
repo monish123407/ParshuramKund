@@ -169,6 +169,7 @@
 
           <!-- Controls Grid -->
           <div class="row g-3 mb-4">
+            <!-- Row 1 -->
             <div class="col-md-6">
               <mat-form-field appearance="outline" class="w-100">
                 <mat-label>Search Registrations</mat-label>
@@ -178,6 +179,29 @@
             </div>
 
             <div class="col-md-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Status Filter</mat-label>
+                <mat-select [(ngModel)]="selectedStatus">
+                  <mat-option value="">All Statuses</mat-option>
+                  <mat-option value="pending">Pending Verification</mat-option>
+                  <mat-option value="verified">Verified Pass</mat-option>
+                  <mat-option value="rejected">Rejected Pass</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="col-md-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Visit Date</mat-label>
+                <mat-select [(ngModel)]="selectedVisitDate">
+                  <mat-option value="">All Dates</mat-option>
+                  <mat-option *ngFor="let d of uniqueVisitDates" [value]="d">{{ d }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="col-md-4">
               <mat-form-field appearance="outline" class="w-100">
                 <mat-label>Gender Filter</mat-label>
                 <mat-select [(ngModel)]="selectedGender">
@@ -189,12 +213,23 @@
               </mat-form-field>
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-4">
               <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Visit Date</mat-label>
-                <mat-select [(ngModel)]="selectedVisitDate">
-                  <mat-option value="">All Dates</mat-option>
-                  <mat-option *ngFor="let d of uniqueVisitDates" [value]="d">{{ d }}</mat-option>
+                <mat-label>State Origin</mat-label>
+                <mat-select [(ngModel)]="selectedState">
+                  <mat-option value="">All States</mat-option>
+                  <mat-option *ngFor="let s of uniqueStates" [value]="s">{{ s }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="col-md-4">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Comorbidities</mat-label>
+                <mat-select [(ngModel)]="selectedComorbidity">
+                  <mat-option value="">All Devotees</mat-option>
+                  <mat-option value="none">No Comorbidities</mat-option>
+                  <mat-option value="has">Has Comorbidities</mat-option>
                 </mat-select>
               </mat-form-field>
             </div>

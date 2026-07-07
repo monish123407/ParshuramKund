@@ -35,6 +35,10 @@ export class Admin implements OnInit {
   selectedGender = '';
   selectedVisitDate = '';
   uniqueVisitDates: string[] = [];
+  selectedStatus = '';
+  selectedState = '';
+  selectedComorbidity = '';
+  uniqueStates: string[] = [];
   
   loading = false;
   isRefreshing = false;
@@ -206,28 +210,30 @@ export class Admin implements OnInit {
         this.applicantService.getAllInquiries().subscribe({
           next: (inqRes) => {
             this.inquiries = inqRes;
-            this.calculateStats();
-            this.extractUniqueDates();
-            if (this.currentUser?.role === 'SUPER_ADMIN') {
-              this.loadMembers();
-            } else {
-              this.loading = false;
-              this.isRefreshing = false;
-              this.cdr.detectChanges();
-            }
-          },
-          error: (inqErr) => {
-            console.error('Load inquiries error: ', inqErr);
-            this.calculateStats();
-            this.extractUniqueDates();
-            if (this.currentUser?.role === 'SUPER_ADMIN') {
-              this.loadMembers();
-            } else {
-              this.loading = false;
-              this.isRefreshing = false;
-              this.cdr.detectChanges();
-            }
-          }
+             this.calculateStats();
+             this.extractUniqueDates();
+             this.extractUniqueStates();
+             if (this.currentUser?.role === 'SUPER_ADMIN') {
+               this.loadMembers();
+             } else {
+               this.loading = false;
+               this.isRefreshing = false;
+               this.cdr.detectChanges();
+             }
+           },
+           error: (inqErr) => {
+             console.error('Load inquiries error: ', inqErr);
+             this.calculateStats();
+             this.extractUniqueDates();
+             this.extractUniqueStates();
+             if (this.currentUser?.role === 'SUPER_ADMIN') {
+               this.loadMembers();
+             } else {
+               this.loading = false;
+               this.isRefreshing = false;
+               this.cdr.detectChanges();
+             }
+           }
         });
       },
       error: (err) => {
@@ -250,6 +256,11 @@ export class Admin implements OnInit {
   extractUniqueDates() {
     const dates = this.registrations.map(r => r.holyDipDate).filter(Boolean);
     this.uniqueVisitDates = Array.from(new Set(dates));
+  }
+
+  extractUniqueStates() {
+    const states = this.registrations.map(r => r.presentState).filter(Boolean);
+    this.uniqueStates = Array.from(new Set(states)).sort();
   }
 
   calculateStats() {
@@ -310,8 +321,26 @@ export class Admin implements OnInit {
       
       const matchesGender = !this.selectedGender || r.gender?.toLowerCase() === this.selectedGender.toLowerCase();
       const matchesVisitDate = !this.selectedVisitDate || r.holyDipDate === this.selectedVisitDate;
+
+      let matchesStatus = true;
+      if (this.selectedStatus === 'verified') {
+        matchesStatus = r.verified === true && !r.rejected;
+      } else if (this.selectedStatus === 'rejected') {
+        matchesStatus = r.rejected === true;
+      } else if (this.selectedStatus === 'pending') {
+        matchesStatus = !r.verified && !r.rejected;
+      }
+
+      const matchesState = !this.selectedState || r.presentState === this.selectedState;
+
+      let matchesComorbidity = true;
+      if (this.selectedComorbidity === 'has') {
+        matchesComorbidity = r.comorbidities && r.comorbidities.toLowerCase() !== 'none';
+      } else if (this.selectedComorbidity === 'none') {
+        matchesComorbidity = !r.comorbidities || r.comorbidities.toLowerCase() === 'none';
+      }
       
-      return matchesSearch && matchesGender && matchesVisitDate;
+      return matchesSearch && matchesGender && matchesVisitDate && matchesStatus && matchesState && matchesComorbidity;
     });
   }
 
