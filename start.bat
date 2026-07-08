@@ -9,13 +9,17 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8081') do taskkill /f /pid %
 echo Freeing port 4200...
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :4200') do taskkill /f /pid %%a >nul 2>&1
 
-REM 2. Start Backend in a new window
-echo Starting Spring Boot Backend in a new terminal window...
-start "Spring Boot Backend" cmd /k "cd \"ParshuramKund Backend\" && mvnw.cmd spring-boot:run"
+REM 2. Start Backend
+echo Starting Spring Boot Backend...
+cd "ParshuramKund Backend"
+start "Spring Boot Backend" cmd /k "mvnw.cmd spring-boot:run"
+cd ..
 
-REM 3. Start Frontend in a new window
-echo Starting Angular Frontend in a new terminal window...
-start "Angular Frontend" cmd /k "cd \"ParshuramKund\" && npm start"
+REM 3. Start Frontend
+echo Starting Angular Frontend...
+cd "ParshuramKund"
+start "Angular Frontend" cmd /k "npm start"
+cd ..
 
 echo --------------------------------------------------------
 echo Both servers have been launched!
