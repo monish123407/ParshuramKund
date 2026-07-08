@@ -50,9 +50,9 @@ nginx -v
 
 ---
 
-## 3. Database Configurations
+## 3. Database Configurations (Run on Database Server: 10.0.105.72)
 
-1. Access the PostgreSQL command line under the `postgres` user:
+1. Log in to your database server `10.0.105.72` and access the PostgreSQL command line:
    ```bash
    sudo -i -u postgres psql
    ```
@@ -65,7 +65,32 @@ nginx -v
    \q
    ```
 
-3. Database migrations will execute automatically. On the first run of the backend, Flyway will apply all schema scripts in order (`V1` through `V10`).
+3. **Configure Remote Connections**:
+   By default, PostgreSQL only listens locally. Enable it to listen to connections from the backend application server `10.0.104.95`:
+   
+   - Edit the main configuration file:
+     ```bash
+     sudo nano /etc/postgresql/14/main/postgresql.conf
+     ```
+     Find `listen_addresses` and change it to:
+     ```ini
+     listen_addresses = '*'
+     ```
+   
+   - Edit the Client Authentication configuration file:
+     ```bash
+     sudo nano /etc/postgresql/14/main/pg_hba.conf
+     ```
+     Append a line at the end to allow connections from the backend server IP:
+     ```text
+     # Allow connections from application server
+     host    parshuramkund    mela_admin    10.0.104.95/32    md5
+     ```
+
+4. **Restart PostgreSQL**:
+   ```bash
+   sudo systemctl restart postgresql
+   ```
 
 ---
 
@@ -116,7 +141,7 @@ To run the Spring Boot jar as a background service that auto-starts on boot:
    ExecStart=/usr/bin/java -jar ParshuramKund-0.0.1-SNAPSHOT.jar
    
    # Production Environmental Configurations
-   Environment=SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/parshuramkund
+   Environment=SPRING_DATASOURCE_URL=jdbc:postgresql://10.0.105.72:5432/parshuramkund
    Environment=SPRING_DATASOURCE_USERNAME=mela_admin
    Environment=SPRING_DATASOURCE_PASSWORD=SecureMelaPassword123
    Environment=GEMINI_API_KEY=your_gemini_api_key_here
@@ -159,9 +184,9 @@ Nginx will serve the static frontend assets directly and proxy `/api/` calls to 
 
 2. Add virtual host configuration (replace `yourdomain.com` with your domain/public IP):
    ```nginx
-   server {
-       listen 80;
-       server_name yourdomain.com www.yourdomain.com;
+    server {
+        listen 80;
+        server_name 10.0.104.95;
 
        root /var/www/mela/frontend;
        index index.html;
@@ -201,9 +226,68 @@ Nginx will serve the static frontend assets directly and proxy `/api/` calls to 
 
 ---
 
-## 7. Let's Encrypt SSL (HTTPS Encryption)
+## 7. SSL Security Certificate (HTTPS Encryption)
 
-To protect sensitive Aadhaar numbers and photo uploads with transit-level HTTPS encryption:
+To protect sensitive Aadhaar numbers and photo uploads with HTTPS encryption:
+
+### Option A: Self-Signed SSL Certificate (For Local Private LAN Setup)
+Since `10.0.104.95` is a private IP address, you can generate a self-signed SSL certificate directly on the Nginx app server:
+
+1. Generate key and certificate:
+   ```bash
+   sudo mkdir -p /etc/nginx/ssl
+   sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+     -keyout /etc/nginx/ssl/mela.key \
+     -out /etc/nginx/ssl/mela.crt \
+     -subj "/C=IN/ST=Arunachal Pradesh/L=Tezu/O=District Administration Lohit/CN=10.0.104.95"
+   ```
+
+2. Update your Nginx configuration `/etc/nginx/sites-available/parshuramkund` to listen on port 443 with SSL:
+   ```nginx
+   server {
+       listen 80;
+       server_name 10.0.104.95;
+       return 301 https://$host$request_uri;
+   }
+
+   server {
+       listen 443 ssl;
+       server_name 10.0.104.95;
+
+       ssl_certificate /etc/nginx/ssl/mela.crt;
+       ssl_certificate_key /etc/nginx/ssl/mela.key;
+
+       root /var/www/mela/frontend;
+       index index.html;
+
+       location / {
+           try_files $uri $uri/ /index.html;
+       }
+
+       location /api/ {
+           proxy_pass http://localhost:8081/api/;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection 'upgrade';
+           proxy_set_header Host $host;
+           proxy_cache_bypass $http_upgrade;
+           proxy_set_header X-Real-IP $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header X-Forwarded-Proto $scheme;
+           client_max_body_size 10M;
+       }
+   }
+   ```
+
+3. Restart Nginx:
+   ```bash
+   sudo systemctl restart nginx
+   ```
+
+---
+
+### Option B: Let's Encrypt SSL (For Public Domain Setup)
+If your app server is accessible from the internet and mapped to a public domain (e.g. `mela.lohit.gov.in` pointing to your server's public IP):
 
 1. Install Certbot:
    ```bash
@@ -212,9 +296,9 @@ To protect sensitive Aadhaar numbers and photo uploads with transit-level HTTPS 
 
 2. Obtain and apply the certificate:
    ```bash
-   sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+   sudo certbot --nginx -d mela.lohit.gov.in
    ```
-   *Follow the interactive prompt to enforce redirection of all traffic to HTTPS.*
+   *Follow the interactive prompt to automatically redirect all HTTP traffic to HTTPS.*
 
 ---
 
