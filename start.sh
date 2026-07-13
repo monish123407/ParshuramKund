@@ -52,7 +52,7 @@ cd ..
 echo "--------------------------------------------------------"
 echo "✓ Backend running (PID: $BACKEND_PID)"
 echo "✓ Frontend running (PID: $FRONTEND_PID)"
-echo "Visit the application at: http://localhost:4200"
+echo "Visit the application at: https://localhost:4200"
 echo "Press Ctrl+C to stop both servers."
 echo "--------------------------------------------------------"
 

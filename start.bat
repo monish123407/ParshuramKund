@@ -24,7 +24,7 @@ cd ..
 echo --------------------------------------------------------
 echo Both servers have been launched!
 echo - Backend: http://localhost:8081
-echo - Frontend: http://localhost:4200
+echo - Frontend: https://localhost:4200
 echo Close the individual command prompt windows to stop them.
 echo --------------------------------------------------------
 pause
