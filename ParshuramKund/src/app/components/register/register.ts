@@ -32,6 +32,7 @@ export class Register implements OnDestroy {
   currentStep = 1;
   isSubmitting = false;
   isRegistrationSuccess = false;
+  showIlpPopup = false;
 
   constructor(
     private http: HttpClient, 
@@ -42,6 +43,10 @@ export class Register implements OnDestroy {
   ngOnInit() {
     this.filteredPresentStates = [...this.statesList];
     this.filteredPermanentStates = [...this.statesList];
+    this.showIlpPopup = true;
+  }
+  closeIlpPopup() {
+    this.showIlpPopup = false;
   }
   selectedAadharFile: File | null = null;
   aadharFileError: string | null = null;
