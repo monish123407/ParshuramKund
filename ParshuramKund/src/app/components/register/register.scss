@@ -1150,19 +1150,19 @@
 // ILP Popup Modal Styles
 .ilp-popup-overlay {
   position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(13, 19, 31, 0.7);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(13, 19, 31, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
 
   .ilp-popup-card {
     background: #ffffff;
@@ -1288,10 +1288,10 @@
 
   // Animation helper
   .animate-scale-in {
-    animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation: ilpPopupScaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 
-  @keyframes scaleIn {
+  @keyframes ilpPopupScaleIn {
     from {
       opacity: 0;
       transform: scale(0.9);

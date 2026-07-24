@@ -41,12 +41,14 @@ export class Register implements OnInit, OnDestroy {
     private cd: ChangeDetectorRef
   ) {}
   ngOnInit() {
+    console.log('Register Component: ngOnInit() called, setting showIlpPopup = true');
     this.filteredPresentStates = [...this.statesList];
     this.filteredPermanentStates = [...this.statesList];
     this.showIlpPopup = true;
     this.cd.detectChanges();
   }
   closeIlpPopup() {
+    console.log('Register Component: closeIlpPopup() called');
     this.showIlpPopup = false;
   }
   selectedAadharFile: File | null = null;
@@ -141,6 +143,7 @@ export class Register implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    console.log('Register Component: ngOnDestroy() called');
     this.cleanupAadharPhoto();
   }
 
