@@ -1,3 +1,39 @@
+<!-- ILP Popup Modal -->
+<div *ngIf="showIlpPopup" class="ilp-popup-overlay">
+  <div class="ilp-popup-card animate-scale-in">
+    <div class="ilp-popup-header">
+      <mat-icon class="popup-icon">info</mat-icon>
+      <h3>Inner Line Permit (ILP) Requirement</h3>
+    </div>
+    <div class="ilp-popup-body">
+      <p>Along with this registration, all pilgrims/applicants must apply for an <strong>Inner Line Permit (ILP)</strong> to enter Arunachal Pradesh.</p>
+      
+      <div class="ilp-options-container">
+        <div class="ilp-option-box">
+          <mat-icon>online_prediction</mat-icon>
+          <div>
+            <h5>Option A: Apply Online (Recommended)</h5>
+            <p>Apply beforehand through the official <a href="https://www.eilp.arunachal.gov.in/preTuristEIlpKYC" target="_blank" rel="noopener noreferrer">e-ILP Arunachal Portal</a> to avoid queues.</p>
+          </div>
+        </div>
+        
+        <div class="ilp-option-box">
+          <mat-icon>location_city</mat-icon>
+          <div>
+            <h5>Option B: Obtain On-Arrival</h5>
+            <p>ILP passes will also be available directly at the check-in gates of Arunachal Pradesh.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ilp-popup-footer">
+      <button mat-raised-button color="primary" class="popup-close-btn" (click)="closeIlpPopup()">
+        I Understand & Proceed
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="registration-container">
   <!-- Submitting Loading Overlay -->
   <div *ngIf="isSubmitting" class="submitting-overlay animate-fade-in">
@@ -469,40 +505,4 @@
     </div>
 
   </mat-card>
-
-  <!-- ILP Popup Modal -->
-  <div *ngIf="showIlpPopup" class="ilp-popup-overlay">
-    <div class="ilp-popup-card animate-scale-in">
-      <div class="ilp-popup-header">
-        <mat-icon class="popup-icon">info</mat-icon>
-        <h3>Inner Line Permit (ILP) Requirement</h3>
-      </div>
-      <div class="ilp-popup-body">
-        <p>Along with this registration, all pilgrims/applicants must apply for an <strong>Inner Line Permit (ILP)</strong> to enter Arunachal Pradesh.</p>
-        
-        <div class="ilp-options-container">
-          <div class="ilp-option-box">
-            <mat-icon>online_prediction</mat-icon>
-            <div>
-              <h5>Option A: Apply Online (Recommended)</h5>
-              <p>Apply beforehand through the official <a href="https://www.eilp.arunachal.gov.in/preTuristEIlpKYC" target="_blank" rel="noopener noreferrer">e-ILP Arunachal Portal</a> to avoid queues.</p>
-            </div>
-          </div>
-          
-          <div class="ilp-option-box">
-            <mat-icon>location_city</mat-icon>
-            <div>
-              <h5>Option B: Obtain On-Arrival</h5>
-              <p>ILP passes will also be available directly at the check-in gates of Arunachal Pradesh.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="ilp-popup-footer">
-        <button mat-raised-button color="primary" class="popup-close-btn" (click)="closeIlpPopup()">
-          I Understand & Proceed
-        </button>
-      </div>
-    </div>
-  </div>
 </div>
