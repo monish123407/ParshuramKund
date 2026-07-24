@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, HostListener, OnDestroy, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, inject } from '@angular/core';
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -17,7 +17,7 @@ import { STATES, STATE_DISTRICTS_MAP } from './states-and-districts';
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
-export class Register implements OnDestroy {
+export class Register implements OnInit, OnDestroy {
   statesList = STATES;
   presentDistricts: string[] = [];
   permanentDistricts: string[] = [];
@@ -44,6 +44,7 @@ export class Register implements OnDestroy {
     this.filteredPresentStates = [...this.statesList];
     this.filteredPermanentStates = [...this.statesList];
     this.showIlpPopup = true;
+    this.cd.detectChanges();
   }
   closeIlpPopup() {
     this.showIlpPopup = false;
