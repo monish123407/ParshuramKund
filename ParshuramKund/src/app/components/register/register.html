@@ -56,7 +56,14 @@
     </div>
 
     <!-- Step 1: Personal Details -->
-    <div *ngIf="currentStep === 1" class="step-content-container">
+    <div *ngIf="currentStep === 1" class="step-content-container animate-fade-in">
+      <div class="ilp-notice">
+        <mat-icon>info</mat-icon>
+        <p class="ilp-notice-content">
+          <strong>Important:</strong> Along with this registration, applicants must apply for an Inner Line Permit (ILP) through the <a href="https://www.eilp.arunachal.gov.in/preTuristEIlpKYC" target="_blank" rel="noopener noreferrer">e-ILP Arunachal Portal</a>, or obtain the ILP directly at the check-in gates of Arunachal Pradesh.
+        </p>
+      </div>
+
       <div class="form-section-card">
         <h4 class="section-card-title"><mat-icon>person</mat-icon> Personal Information</h4>
         <div class="row">
@@ -354,6 +361,13 @@
       <div class="preview-section">
         <h3 class="preview-title">Review Your Registration Details</h3>
         <p class="preview-subtitle">Please double-check all details below. Tick the declaration statement and click "Confirm & Submit" to complete your registration.</p>
+
+        <div class="ilp-notice">
+          <mat-icon>info</mat-icon>
+          <p class="ilp-notice-content">
+            <strong>Important:</strong> Along with this registration, applicants must apply for an Inner Line Permit (ILP) through the <a href="https://www.eilp.arunachal.gov.in/preTuristEIlpKYC" target="_blank" rel="noopener noreferrer">e-ILP Arunachal Portal</a>, or obtain the ILP directly at the check-in gates of Arunachal Pradesh.
+          </p>
+        </div>
 
         <div class="preview-grid">
           <!-- Section: Personal Info -->

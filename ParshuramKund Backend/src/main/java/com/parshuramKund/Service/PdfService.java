@@ -242,7 +242,11 @@ public class PdfService {
         leftCell.addElement(inst4);
 
         Paragraph inst5 = new Paragraph("5. In case of medical or security assistance, contact the nearest transit camp or call the emergency response cell.", instFont);
+        inst5.setSpacingAfter(2f);
         leftCell.addElement(inst5);
+
+        Paragraph inst6 = new Paragraph("6. Along with the registration, applicant needs to apply for ILP through https://www.eilp.arunachal.gov.in/preTuristEIlpKYC or ILP will be available at check-in gates of Arunachal Pradesh.", instFont);
+        leftCell.addElement(inst6);
 
         bottomTable.addCell(leftCell);
 

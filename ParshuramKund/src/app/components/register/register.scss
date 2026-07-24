@@ -1107,4 +1107,42 @@
     font-weight: 500;
     margin-top: 6px;
   }
+
+  .ilp-notice {
+    background-color: #fffbeb;
+    border-left: 5px solid #d97706;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.05);
+
+    mat-icon {
+      color: #d97706;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .ilp-notice-content {
+      font-size: 14px;
+      line-height: 1.5;
+      color: #78350f;
+      margin: 0;
+
+      a {
+        color: #b45309;
+        text-decoration: underline;
+        font-weight: 600;
+        transition: color 0.2s;
+
+        &:hover {
+          color: #78350f;
+        }
+      }
+    }
+  }
 }
