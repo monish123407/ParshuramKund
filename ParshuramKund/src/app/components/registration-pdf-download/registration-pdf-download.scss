@@ -7,12 +7,12 @@
   }
   
   .success-page {
-    min-height: 100vh;
+    min-height: calc(100vh - 72px);
     background: linear-gradient(135deg, #f2f7ff, #dfefff);
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 40px 20px;
     font-family: Arial, Helvetica, sans-serif;
   }
   
